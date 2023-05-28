@@ -49,7 +49,6 @@ export default () => {
 
       <Button ml="2rem" mt="1rem" colorScheme="telegram" onClick={() => {
         const uid = Math.random().toString(16).slice(2)
-        socket.emit('createRoom', uid)
         router.push(`/rooms/${uid}`)
         if (localStorage.getItem('rooms') === null) {
           localStorage.setItem('rooms', JSON.stringify([uid]))

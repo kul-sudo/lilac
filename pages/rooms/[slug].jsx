@@ -1,5 +1,5 @@
 import Head from 'next/head'
-import { Button, Center, HStack, IconButton, Input, Text, VStack, useColorModeValue } from '@chakra-ui/react'
+import { Box, Button, Center, HStack, IconButton, Input, Text, VStack, useColorModeValue } from '@chakra-ui/react'
 import { useRouter } from 'next/router'
 import { LockIcon, SendIcon } from 'lucide-react'
 import { useEffect, useState } from 'react';
@@ -33,20 +33,21 @@ export default () => {
       })
   }, [])
 
-  const socketInitializer = async () => {
-    await fetch('/api/socket')
-
-    socket = io(undefined, {
-      path: '/api/socket'
-    })
-
-    socket.on('messageReceived', data => {
-      setMessages(prevMessages => [...prevMessages, [data.message, data.username]])
-    })
-  }
-  console.log(messages)
-
   useEffect(() => {
+    const socketInitializer = async () => {
+      await fetch('/api/socket')
+
+      socket = io(undefined, {
+        path: '/api/socket'
+      })
+
+      socket.emit('createRoom', uid)
+
+      socket.on('messageReceived', data => {
+        setMessages(prevMessages => [...prevMessages, [data.message, data.username]])
+      })
+    }
+
     socketInitializer()
 
     return () => {
@@ -83,16 +84,26 @@ export default () => {
         </VStack>
       </Center>
 
-      <VStack mt="2rem">
-        {messages.map((element, index) => {
-          return (
-            <HStack>
-              <Text color="red">{element[1]}: </Text>
-              <Text>{element[0]}</Text>
-            </HStack>
-          )
-        })}
-      </VStack>
+      <Center>
+        <VStack mt="2rem" alignItems="left">
+          {messages.map((element, index) => {
+            return (
+              <Box
+                key={index}
+                maxWidth="300px"
+                wordBreak="break-word"
+              >
+                <HStack alignItems="top">
+                  <Text color="red">{element[1]}:</Text>
+                  <Box flex="1" wordBreak="break-word">
+                    <Text>{element[0]}</Text>
+                  </Box>
+                </HStack>
+              </Box>
+            )
+          })}
+        </VStack>
+      </Center>
 
       <Center>
         <HStack position="fixed" bottom="5" backdropFilter="auto" backdropBlur="12px">

@@ -17,7 +17,6 @@ export default (req, res) => {
   io.on('connection', socket => {
     socket.on('createRoom', roomUid => {
       socket.join(roomUid)
-      console.log(`Joined ${roomUid}`)
     })
 
     socket.on('leaveRoom', roomUid => {
@@ -25,7 +24,6 @@ export default (req, res) => {
     })
 
     socket.on('sendMessage', data => {
-      socket.join(data.uid)
       io.to(data.uid).emit('messageReceived', { message: data.message, username: data.username })
     })
   })
