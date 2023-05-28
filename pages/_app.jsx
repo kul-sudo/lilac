@@ -36,7 +36,7 @@ export default ({ Component, pageProps }) => {
       const response = await fetch('/api/verify-token', {
         method: 'POST',
         headers: {
-          'Content-Type': 'application/json',
+          'Content-Type': 'application/json'
         },
         body: JSON.stringify({ token })
       })
@@ -47,7 +47,7 @@ export default ({ Component, pageProps }) => {
       } else if (response.status === 401) {
         setRequiresAuth(AUTH)
         fetch('/api/remove-token', {
-          method: 'DELETE',
+          method: 'DELETE'
         })
       }
     } catch (error) {
