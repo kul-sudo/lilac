@@ -1,4 +1,4 @@
-import { Server } from 'socket.io'
+import io from '@/lib/server'
 
 export default (req, res) => {
   if (res.socket.server.io) {
@@ -6,11 +6,6 @@ export default (req, res) => {
     res.end()
     return
   }
-
-  const io = new Server(res.socket.server, {
-    path: '/api/socket',
-    addTrailingSlash: false
-  })
 
   res.socket.server.io = io
 
