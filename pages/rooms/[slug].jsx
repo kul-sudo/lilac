@@ -2,7 +2,7 @@ import Head from 'next/head'
 import { Box, Button, Center, HStack, IconButton, Input, Text, VStack, useColorModeValue } from '@chakra-ui/react'
 import { useRouter } from 'next/router'
 import { LockIcon, SendIcon } from 'lucide-react'
-import { useEffect, useState } from 'react';
+import { useEffect, useState } from 'react'
 import io from 'socket.io-client'
 
 let socket;
