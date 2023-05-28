@@ -1,8 +1,8 @@
 import Head from 'next/head'
 import { Button, HStack, Input, Text, VStack, useColorModeValue } from '@chakra-ui/react'
 import { useEffect } from 'react'
-import { useRouter } from 'next/router';
-import { BadgeCheckIcon } from 'lucide-react';
+import { useRouter } from 'next/router'
+import { BadgeCheckIcon } from 'lucide-react'
 import io from 'socket.io-client'
 
 let socket;
