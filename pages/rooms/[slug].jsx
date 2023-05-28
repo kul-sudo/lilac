@@ -1,7 +1,7 @@
 import Head from 'next/head'
 import { Box, Button, Center, HStack, IconButton, Input, Text, VStack, useColorModeValue } from '@chakra-ui/react'
 import { useRouter } from 'next/router'
-import { LockIcon, SendIcon } from 'lucide-react'
+import { CopyIcon, LockIcon, SendIcon } from 'lucide-react'
 import { useEffect, useState } from 'react'
 import io from 'socket.io-client'
 
@@ -28,9 +28,22 @@ export default () => {
         })
           .then(response => response.json())
           .then(data => {
-            setUsername(data.payload.username)
+            const username = data.payload.username
+            setUsername(username)
+            const keyDownHandler = ({ key }) => {
+              if (key === 'Enter') {
+                socket.emit('sendMessage', { uid, message: document.getElementById('message-input').value, username })
+              }
+            }
+
+            const messageInput = document.getElementById('message-input')
+            messageInput.addEventListener('keyup', keyDownHandler)
           })
       })
+
+    return () => {
+      messageInput.removeEventListener('keyup', keyDownHandler)
+    }
   }, [])
 
   useEffect(() => {
@@ -58,7 +71,6 @@ export default () => {
     }
   }, [])
 
-
   return (
     <>
       <Head>
@@ -67,7 +79,6 @@ export default () => {
         <meta name="viewport" content="width=device-width, initial-scale=1" />
         <link rel="icon" href="/favicon.ico" />
       </Head>
-
 
       <Button position="fixed" top="5" left="5" onClick={() => {
         socket.emit('leaveRoom', uid)
@@ -80,6 +91,9 @@ export default () => {
           <HStack>
             <LockIcon />
             <Text color={useColorModeValue('gray.800', 'whiteAlpha.900')} fontSize="xl">{uid}</Text>
+            <IconButton variant="unstyled" icon={<CopyIcon />} onClick={() => {
+              navigator.clipboard.writeText(uid)
+            }} />
           </HStack>
         </VStack>
       </Center>

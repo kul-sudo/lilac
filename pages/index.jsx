@@ -68,11 +68,9 @@ export default () => {
         <Button variant="outline" colorScheme={useColorModeValue('messenger', 'gray')} onClick={() => {
           const roomUidInputValue = document.getElementById('room-id-request').value
           if (isRoomExistent(roomUidInputValue)) {
-            socket.emit('createRoom', roomUidInputValue)
             router.push(`/rooms/${roomUidInputValue}`)
           } else {
             const uid = Math.random().toString(16).slice(2)
-            socket.emit('createRoom', uid)
             router.push(`/rooms/${uid}`)
           }
         }}>Join a room</Button>
