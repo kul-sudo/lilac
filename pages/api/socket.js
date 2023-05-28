@@ -28,6 +28,5 @@ export default (req, res) => {
     })
   })
 
-  console.log('Setting up the socket.')
   res.end()
 }
