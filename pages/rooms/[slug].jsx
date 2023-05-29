@@ -1,5 +1,5 @@
 import Head from 'next/head'
-import { Box, Button, Center, HStack, IconButton, Input, Text, VStack, useColorModeValue } from '@chakra-ui/react'
+import { Box, Button, Center, HStack, IconButton, Input, Text, VStack, useColorModeValue, useToast } from '@chakra-ui/react'
 import { useRouter } from 'next/router'
 import { CopyIcon, LockIcon, SendIcon } from 'lucide-react'
 import { useEffect, useState } from 'react'
@@ -13,6 +13,8 @@ export default () => {
   const [messages, setMessages] = useState([])
 
   const [username, setUsername] = useState('')
+
+  const toast = useToast()
 
   useEffect(() => {
     fetch('/api/get-token')
@@ -28,22 +30,31 @@ export default () => {
         })
           .then(response => response.json())
           .then(data => {
+            const messageInput = document.getElementById('message-input')
             const username = data.payload.username
+
             setUsername(username)
             const keyDownHandler = ({ key }) => {
               if (key === 'Enter') {
+                if (messageInput.value === '') {
+                  toast({
+                    title: 'Error',
+                    description: 'The message typed in the input is empty.',
+                    status: 'error',
+                    duration: 9000,
+                    isClosable: true
+                  })
+                  return
+                }
+
                 socket.emit('sendMessage', { uid, message: document.getElementById('message-input').value, username })
+                messageInput.value = ''
               }
             }
 
-            const messageInput = document.getElementById('message-input')
             messageInput.addEventListener('keyup', keyDownHandler)
           })
       })
-
-    return () => {
-      messageInput.removeEventListener('keyup', keyDownHandler)
-    }
   }, [])
 
   useEffect(() => {
@@ -80,12 +91,14 @@ export default () => {
         <link rel="icon" href="/favicon.ico" />
       </Head>
 
-      <Button position="fixed" top="5" left="5" onClick={() => {
-        socket.emit('leaveRoom', uid)
-        router.push('/')
-      }}>Leave</Button>
+      <Center>
+        <Button position="fixed" top="5" onClick={() => {
+          socket.emit('leaveRoom', uid)
+          router.push('/')
+        }}>Leave</Button>
+      </Center>
 
-      <Center mt="1rem">
+      <Center mt="5rem">
         <VStack>
           <Text background={useColorModeValue('black', 'white')} color={useColorModeValue('white', 'black')} px="0.5rem" fontSize="xl" rounded="md">The room ID is unique</Text>
           <HStack>
@@ -93,19 +106,27 @@ export default () => {
             <Text color={useColorModeValue('gray.800', 'whiteAlpha.900')} fontSize="xl">{uid}</Text>
             <IconButton variant="unstyled" icon={<CopyIcon />} onClick={() => {
               navigator.clipboard.writeText(uid)
+              toast({
+                title: 'Copied',
+                description: 'The unique ID has been copied to the clipboard.',
+                status: 'success',
+                duration: 9000,
+                isClosable: true
+              })
             }} />
           </HStack>
         </VStack>
       </Center>
 
       <Center>
-        <VStack mt="2rem" alignItems="left">
+        <VStack mt="2rem" alignItems="start" width="100%" maxWidth="300px">
           {messages.map((element, index) => {
             return (
               <Box
                 key={index}
-                maxWidth="300px"
                 wordBreak="break-word"
+                textAlign="left"
+                alignSelf="flex-start"
               >
                 <HStack alignItems="top">
                   <Text color="red">{element[1]}:</Text>
@@ -123,7 +144,20 @@ export default () => {
         <HStack position="fixed" bottom="5" backdropFilter="auto" backdropBlur="12px">
           <Input id="message-input" placeholder="Type the message" variant="filled" />  
           <IconButton icon={<SendIcon />} onClick={() => {
-            socket.emit('sendMessage', { uid, message: document.getElementById('message-input').value, username })
+            const messageInput = document.getElementById('message-input')
+            if (messageInput.value === '') {
+              toast({
+                title: 'Error',
+                description: 'The message typed in the input is empty.',
+                status: 'error',
+                duration: 9000,
+                isClosable: true
+              })
+              return
+            }
+            socket.emit('sendMessage', { uid, message: messageInput.value, username })
+
+            messageInput.value = ''
           }} />
         </HStack>
       </Center>

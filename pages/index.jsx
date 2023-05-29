@@ -44,7 +44,7 @@ export default () => {
 
       <VStack mt="2rem" ml="2rem" alignItems="left">
         <Text fontSize="2.5rem" fontWeight="extrabold">The lightest messenger in the world.</Text>
-        <Text color="#7f8ea3" fontSize="xl">Just create a room, share it with your friend and share your thoughts.</Text>
+        <Text color="#7f8ea3" fontSize="xl" pr="1rem">Just create a room, share it with your friend and share your thoughts.</Text>
       </VStack>
 
       <Button ml="2rem" mt="1rem" colorScheme="telegram" onClick={() => {
@@ -60,9 +60,9 @@ export default () => {
       }}>Create a room</Button>
 
       <VStack alignItems="flex-start" ml="2rem" mt="2.5rem">
-        <HStack>
+        <HStack display="inline-flex" alignItems="top">
           <BadgeCheckIcon />
-          <Text>If the room does not exist, it will be created with a brand new ID.</Text>
+          <Text width="80%">If the room does not exist, it will be created with a brand new ID.</Text>
         </HStack>
         <Input id="room-id-request" variant="filled" placeholder="What's the room ID?" width="15rem" />
         <Button variant="outline" colorScheme={useColorModeValue('messenger', 'gray')} onClick={() => {
