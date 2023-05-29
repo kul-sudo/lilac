@@ -10,6 +10,7 @@ const MAIN_PAGE = 2
 
 export default ({ Component, pageProps }) => {
   const [requiresAuth, setRequiresAuth] = useState(BLANK)  
+  const [usernameToShow, setUsernameToShow] = useState('')
 
   useEffect(() => {
     fetch('/api/get-token')
@@ -43,7 +44,10 @@ export default ({ Component, pageProps }) => {
 
       if (response.ok) {
         setRequiresAuth(MAIN_PAGE)
-        return
+        
+        const { payload } = await response.json()
+        const username = payload.username
+        setUsernameToShow(username)
       } else if (response.status === 401) {
         setRequiresAuth(AUTH)
         fetch('/api/remove-token', {
@@ -80,6 +84,8 @@ export default ({ Component, pageProps }) => {
               } catch (error) {
                 console.error('Authentication error:', error)
               }
+
+              setUsernameToShow(username)
             }}>Authenticate</Button>
           </VStack>
         </Center>
@@ -87,7 +93,7 @@ export default ({ Component, pageProps }) => {
 
       {requiresAuth === MAIN_PAGE && (
         <>
-          <Navbar />
+          <Navbar username={usernameToShow} />
           <Component {...pageProps} />
         </>
       )}
