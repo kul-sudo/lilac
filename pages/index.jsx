@@ -42,7 +42,7 @@ export default () => {
         <link rel="icon" href="/favicon.ico" />
       </Head>
 
-      <VStack mt="2rem" ml="2rem" alignItems="left">
+      <VStack mt="3rem" ml="2rem" alignItems="left">
         <Text fontSize="2.5rem" fontWeight="extrabold">The lightest messenger in the world.</Text>
         <Text color="#7f8ea3" fontSize="xl" pr="1rem">Just create a room, share it with your friend and share your thoughts.</Text>
       </VStack>

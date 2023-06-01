@@ -92,13 +92,13 @@ export default () => {
       </Head>
 
       <Center>
-        <Button position="fixed" top="5" onClick={() => {
+        <Button position="fixed" top="3.5rem" onClick={() => {
           socket.emit('leaveRoom', uid)
           router.push('/')
         }}>Leave</Button>
       </Center>
 
-      <Center mt="5rem">
+      <Center mt="7rem">
         <VStack>
           <Text background={useColorModeValue('black', 'white')} color={useColorModeValue('white', 'black')} px="0.5rem" fontSize="xl" rounded="md">The room ID is unique</Text>
           <HStack>

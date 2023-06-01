@@ -61,7 +61,7 @@ export default ({ Component, pageProps }) => {
 
   return (
     <ChakraProvider theme={theme}>
-      {requiresAuth === AUTH && (
+      {(requiresAuth === AUTH) && (
         <Center mt="2rem">
           <VStack>
             <Input id="auth-username-input" placeholder="Type your username" />
@@ -91,7 +91,7 @@ export default ({ Component, pageProps }) => {
         </Center>
       )}
 
-      {requiresAuth === MAIN_PAGE && (
+      {(requiresAuth === MAIN_PAGE) && (
         <>
           <Navbar username={usernameToShow} />
           <Component {...pageProps} />
