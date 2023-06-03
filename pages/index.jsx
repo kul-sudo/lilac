@@ -3,18 +3,30 @@ import { Button, HStack, Input, Text, VStack, useColorModeValue } from '@chakra-
 import { useEffect } from 'react'
 import { useRouter } from 'next/router'
 import { BadgeCheckIcon } from 'lucide-react'
+import { addRoom, retrieveRooms } from '@/lib/firebaseOperations'
 import io from 'socket.io-client'
 
 let socket;
 
-const isRoomExistent = roomUid => {
-  const gotItem = localStorage.getItem('rooms')
-  if (gotItem === null) {
+const isRoomExistent = async roomUid => {
+  if (await retrieveRooms() === null) {
+    return false 
+  }
+  
+  const retrievedAgain = await retrieveRooms()
+  let exists = false
+
+  Object.keys(retrievedAgain).map(key => {
+    if (retrievedAgain[key].uid === roomUid) {
+      exists = true
+      return
+    }
+  })
+
+  if (exists) {
     return true
   }
-  if (JSON.parse(gotItem).includes(roomUid)) {
-    return true
-  }
+
   return false
 }
 
@@ -47,16 +59,10 @@ export default () => {
         <Text color="#7f8ea3" fontSize="xl" pr="1rem">Just create a room, share it with your friend and share your thoughts.</Text>
       </VStack>
 
-      <Button ml="2rem" mt="1rem" colorScheme="telegram" onClick={() => {
+      <Button ml="2rem" mt="1rem" colorScheme="telegram" onClick={async () => {
         const uid = Math.random().toString(16).slice(2)
         router.push(`/rooms/${uid}`)
-        if (localStorage.getItem('rooms') === null) {
-          localStorage.setItem('rooms', JSON.stringify([uid]))
-        } else {
-          const fetched = JSON.parse(localStorage.getItem('rooms'))
-          fetched.push(uid)
-          localStorage.setItem('rooms', JSON.stringify(fetched))
-        }
+        addRoom(uid) 
       }}>Create a room</Button>
 
       <VStack alignItems="flex-start" ml="2rem" mt="2.5rem">
@@ -65,12 +71,13 @@ export default () => {
           <Text width="80%">If the room does not exist, it will be created with a brand new ID.</Text>
         </HStack>
         <Input id="room-id-request" variant="filled" placeholder="What's the room ID?" width="15rem" />
-        <Button variant="outline" colorScheme={useColorModeValue('messenger', 'gray')} onClick={() => {
+        <Button variant="outline" colorScheme={useColorModeValue('messenger', 'gray')} onClick={async () => {
           const roomUidInputValue = document.getElementById('room-id-request').value
-          if (isRoomExistent(roomUidInputValue)) {
+          if (await isRoomExistent(roomUidInputValue)) {
             router.push(`/rooms/${roomUidInputValue}`)
           } else {
             const uid = Math.random().toString(16).slice(2)
+            addRoom(uid)
             router.push(`/rooms/${uid}`)
           }
         }}>Join a room</Button>

@@ -4,12 +4,52 @@ import { useRouter } from 'next/router'
 import { CopyIcon, LockIcon, SendIcon } from 'lucide-react'
 import { useEffect, useState } from 'react'
 import io from 'socket.io-client'
+import { addRoom, retrieveRooms } from '@/lib/firebaseOperations'
 
 let socket;
+
+const isRoomExistent = async roomUid => {
+  if (await retrieveRooms() === null) {
+    return false 
+  }
+  
+  const retrievedAgain = await retrieveRooms()
+  let exists = false
+
+  Object.keys(retrievedAgain).map(key => {
+    if (retrievedAgain[key].uid === roomUid) {
+      exists = true
+      return
+    }
+  })
+
+  if (exists) {
+    return true
+  }
+
+  return false
+}
 
 export default () => {
   const router = useRouter()
   const uid = router.query.slug
+  const [UIDToShow, setUIDToShow] = useState('Unavailable')
+
+  useEffect(() => {
+    const checkRoomExistence = async roomUid => {
+      if (await isRoomExistent(roomUid)) {
+        setUIDToShow(roomUid)
+      } else {
+        const newRoomUid = Math.random().toString(16).slice(2)
+        await addRoom(newRoomUid)
+        setUIDToShow(newRoomUid)
+        router.push(`/rooms/${newRoomUid}`)
+      }
+    }
+
+    checkRoomExistence(uid)
+  }, [])
+
   const [messages, setMessages] = useState([])
 
   const [username, setUsername] = useState('')
@@ -103,7 +143,7 @@ export default () => {
           <Text background={useColorModeValue('black', 'white')} color={useColorModeValue('white', 'black')} px="0.5rem" fontSize="xl" rounded="md">The room ID is unique</Text>
           <HStack>
             <LockIcon />
-            <Text color={useColorModeValue('gray.800', 'whiteAlpha.900')} fontSize="xl">{uid}</Text>
+            <Text color={useColorModeValue('gray.800', 'whiteAlpha.900')} fontSize="xl">{UIDToShow}</Text>
             <IconButton variant="unstyled" icon={<CopyIcon />} onClick={() => {
               navigator.clipboard.writeText(uid)
               toast({
