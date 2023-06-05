@@ -9,32 +9,19 @@ import { addRoom, retrieveRooms } from '@/lib/firebaseOperations'
 let socket;
 
 const isRoomExistent = async roomUid => {
-  if (await retrieveRooms() === null) {
+  const rooms = await retrieveRooms()
+
+  if (rooms === null) {
     return false 
   }
-  
-  const retrievedAgain = await retrieveRooms()
-  let exists = false
 
-  Object.keys(retrievedAgain).map(key => {
-    if (retrievedAgain[key].uid === roomUid) {
-      exists = true
-      return
-    }
-  })
-
-  if (exists) {
-    return true
-  }
-
-  return false
+  return Object.values(rooms).some(room => room.uid === roomUid)
 }
 
 export default () => {
   const router = useRouter()
   const uid = router.query.slug
   const [UIDToShow, setUIDToShow] = useState('Unavailable')
-  const date = new Date()
 
   useEffect(() => {
     const checkRoomExistence = async roomUid => {
@@ -109,7 +96,10 @@ export default () => {
       socket.emit('createRoom', uid)
 
       socket.on('messageReceived', data => {
-        setMessages(prevMessages => [...prevMessages, [data.message, data.username, `${date.getHours()}:${date.getMinutes().toLocaleString('en-gb', { minimumIntegerDigits: 2, useGrouping:false })}`]])
+        const date = new Date()
+        const time = `${date.getHours()}:${date.getMinutes().toLocaleString('en-gb', { minimumIntegerDigits: 2, useGrouping:false })}`
+
+        setMessages(prevMessages => [...prevMessages, [data.message, data.username, time]])
       })
     }
 
