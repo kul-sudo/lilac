@@ -109,7 +109,7 @@ export default () => {
       socket.emit('createRoom', uid)
 
       socket.on('messageReceived', data => {
-        setMessages(prevMessages => [...prevMessages, [data.message, data.username, `${date.getHours()}:${date.getMinutes()}`]])
+        setMessages(prevMessages => [...prevMessages, [data.message, data.username, `${date.getHours()}:${date.getMinutes().toLocaleString('en-gb', { minimumIntegerDigits: 2, useGrouping:false })}`]])
       })
     }
 
