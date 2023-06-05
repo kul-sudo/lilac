@@ -34,6 +34,7 @@ export default () => {
   const router = useRouter()
   const uid = router.query.slug
   const [UIDToShow, setUIDToShow] = useState('Unavailable')
+  const date = new Date()
 
   useEffect(() => {
     const checkRoomExistence = async roomUid => {
@@ -108,7 +109,7 @@ export default () => {
       socket.emit('createRoom', uid)
 
       socket.on('messageReceived', data => {
-        setMessages(prevMessages => [...prevMessages, [data.message, data.username]])
+        setMessages(prevMessages => [...prevMessages, [data.message, data.username, `${date.getHours()}:${date.getMinutes()}`]])
       })
     }
 
@@ -132,7 +133,7 @@ export default () => {
       </Head>
 
       <Center>
-        <Button position="fixed" top="3.5rem" onClick={() => {
+        <Button position="fixed" top="3.5rem" backdropFilter="auto" backdropBlur="12px" onClick={() => {
           socket.emit('leaveRoom', uid)
           router.push('/')
         }}>Leave</Button>
@@ -159,7 +160,7 @@ export default () => {
       </Center>
 
       <Center>
-        <VStack mt="2rem" alignItems="start" width="100%" maxWidth="300px">
+        <VStack mt="2rem" alignItems="start" width="100%" pb="3rem" maxWidth="300px">
           {messages.map((element, index) => {
             return (
               <Box
@@ -169,6 +170,7 @@ export default () => {
                 alignSelf="flex-start"
               >
                 <HStack alignItems="top">
+                  <Text color="gray">{element[2]}</Text>
                   <Text color="red">{element[1]}:</Text>
                   <Box flex="1" wordBreak="break-word">
                     <Text>{element[0]}</Text>

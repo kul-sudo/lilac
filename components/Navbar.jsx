@@ -5,7 +5,7 @@ export default ({ username }) => {
   const { toggleColorMode } = useColorMode()
 
   return (
-    <HStack position="fixed" top="2" right="2" spacing="1rem">
+    <HStack position="fixed" top="2" right="2" spacing="1rem" backdropFilter="auto" backdropBlur="5px" px="1rem" rounded="xl">
       <HStack spacing="-0.05rem">
         <UserIcon />
         <Text>{username}</Text>
