@@ -19,5 +19,6 @@ export default async (req, res) => {
 
 const verifyToken = async token => {
   const { payload } = await jwtVerify(token, process.env.JWT_SECRET_KEY)
+  
   return payload
 }

@@ -99,7 +99,11 @@ export default () => {
         const date = new Date()
         const time = `${date.getHours()}:${date.getMinutes().toLocaleString('en-gb', { minimumIntegerDigits: 2, useGrouping: false })}`
 
-        setMessages(prevMessages => [...prevMessages, [data.message, data.username, time]])
+        setMessages(prevMessages => [...prevMessages, [data.message, data.username + ':', time]])
+      })
+
+      socket.on('userConnected', message => {
+        setMessages(prevMessages => [...prevMessages, [message, undefined, undefined]])
       })
     }
 
@@ -161,7 +165,7 @@ export default () => {
               >
                 <HStack alignItems="top">
                   <Text color="gray">{element[2]}</Text>
-                  <Text color="red">{element[1]}:</Text>
+                  <Text color="red">{element[1]}</Text>
                   <Box flex="1" wordBreak="break-word">
                     <Text>{element[0]}</Text>
                   </Box>

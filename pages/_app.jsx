@@ -67,6 +67,7 @@ export default ({ Component, pageProps }) => {
             <Input id="auth-username-input" placeholder="Type your username" />
             <Button onClick={async () => {
               const username = document.getElementById('auth-username-input').value
+              
               try {
                 const response = await fetch('/api/authenticate', {
                   method: 'POST',
