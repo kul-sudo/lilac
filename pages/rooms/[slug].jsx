@@ -1,8 +1,8 @@
 import Head from 'next/head'
+import { memo, useEffect, useState } from 'react'
 import { Box, Button, Center, HStack, IconButton, Input, Text, VStack, useColorModeValue, useToast } from '@chakra-ui/react'
 import { useRouter } from 'next/router'
 import { CopyIcon, LockIcon, SendIcon } from 'lucide-react'
-import { useEffect, useState } from 'react'
 import io from 'socket.io-client'
 import { addRoom, retrieveRooms } from '@/lib/firebaseOperations'
 
@@ -18,7 +18,7 @@ const isRoomExistent = async roomUid => {
   return Object.values(rooms).some(room => room.uid === roomUid)
 }
 
-export default () => {
+export default memo(() => {
   const router = useRouter()
   const uid = router.query.slug
   const [UIDToShow, setUIDToShow] = useState('Unavailable')
@@ -199,4 +199,4 @@ export default () => {
       </Center>
     </>
   )
-}
+})
