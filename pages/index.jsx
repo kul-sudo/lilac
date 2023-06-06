@@ -9,25 +9,13 @@ import io from 'socket.io-client'
 let socket;
 
 const isRoomExistent = async roomUid => {
-  if (await retrieveRooms() === null) {
+  const rooms = await retrieveRooms()
+
+  if (rooms === null) {
     return false 
   }
-  
-  const retrievedAgain = await retrieveRooms()
-  let exists = false
 
-  Object.keys(retrievedAgain).map(key => {
-    if (retrievedAgain[key].uid === roomUid) {
-      exists = true
-      return
-    }
-  })
-
-  if (exists) {
-    return true
-  }
-
-  return false
+  return Object.values(rooms).some(room => room.uid === roomUid)
 }
 
 export default () => {
