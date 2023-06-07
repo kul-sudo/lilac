@@ -52,45 +52,53 @@ export default memo(() => {
 
   const toast = useToast()
 
+  let color;
+
   useEffect(() => {
-    fetch('/api/get-token')
+    const fetchToken = async () => {
+      await fetch('/api/get-token')
       .then(response => response.json())
-      .then(data => {
+      .then(async data => {
         const token = data.token
-        fetch('/api/verify-token', {
+        await fetch('/api/verify-token', {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json'
           },
           body: JSON.stringify({ token })
         })
-          .then(response => response.json())
-          .then(data => {
-            const messageInput = document.getElementById('message-input')
-            const username = data.payload.username
+        .then(response => response.json())
+        .then(data => {
+          const messageInput = document.getElementById('message-input')
+          const username = data.payload.username
 
-            setUsername(username)
-            const keyDownHandler = ({ key }) => {
-              if (key === 'Enter') {
-                if (messageInput.value === '') {
-                  toast({
-                    title: 'Error',
-                    description: 'The message typed in the input is empty.',
-                    status: 'error',
-                    duration: 9000,
-                    isClosable: true
-                  })
-                  return
-                }
+          color = data.payload.color
+          setUsername(username)
 
-                socket.emit('sendMessage', { uid, message: document.getElementById('message-input').value, username })
-                messageInput.value = ''
+          const keyDownHandler = ({ key }) => {
+            if (key === 'Enter') {
+              if (messageInput.value === '') {
+                toast({
+                  title: 'Error',
+                  description: 'The message typed in the input is empty.',
+                  status: 'error',
+                  duration: 9000,
+                  isClosable: true
+                })
+                return
               }
-            }
 
-            messageInput.addEventListener('keyup', keyDownHandler)
-          })
+              socket.emit('sendMessage', { uid, message: document.getElementById('message-input').value, username, color })
+              messageInput.value = ''
+            }
+          }
+
+          messageInput.addEventListener('keyup', keyDownHandler)
+        })
       })
+    }
+
+    fetchToken()
   }, [])
 
   useEffect(() => {
@@ -107,13 +115,17 @@ export default memo(() => {
         const date = new Date()
         const time = `${date.getHours()}:${date.getMinutes().toLocaleString('en-gb', { minimumIntegerDigits: 2, useGrouping: false })}`
 
-        setMessages(prevMessages => [...prevMessages, [data.message, data.username + ':', time]])
+        setMessages(prevMessages => [...prevMessages, [data.message, data.username + ':', time, data.color]])
       
         scrollMessagesDown()
       })
 
       socket.on('userConnected', message => {
-        setMessages(prevMessages => [...prevMessages, [message, undefined, undefined]])
+        setMessages(prevMessages => [...prevMessages, [message, undefined, undefined, undefined]])
+      })
+
+      socket.on('userLeft', message => {
+        setMessages(prevMessages => [...prevMessages, [message, undefined, undefined, undefined]])
       })
     }
 
@@ -175,7 +187,7 @@ export default memo(() => {
               >
                 <HStack alignItems="top">
                   <Text color="gray">{element[2]}</Text>
-                  <Text color="red">{element[1]}</Text>
+                  <Text color={element[3]}>{element[1]}</Text>
                   <Box flex="1" wordBreak="break-word">
                     <Text>{element[0]}</Text>
                   </Box>
@@ -203,7 +215,7 @@ export default memo(() => {
               return
             }
 
-            socket.emit('sendMessage', { uid, message: messageInput.value, username })
+            socket.emit('sendMessage', { uid, message: messageInput.value, username, color })
 
             messageInput.value = ''
           }} />

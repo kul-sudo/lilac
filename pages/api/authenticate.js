@@ -7,8 +7,13 @@ export default async (req, res) => {
   }
   try {
     const { username } = req.body
+  
+    const colors = ['red', 'blue', 'teal', 'purple']
 
-    const token = await new SignJWT({ username })
+    const randomColorIndex = Math.floor(Math.random() * colors.length)
+    const randomColorElement = colors[randomColorIndex]
+
+    const token = await new SignJWT({ username, color: randomColorElement })
       .setExpirationTime('1h')
       .setProtectedHeader({ alg: 'HS256' })
       .setIssuedAt()
