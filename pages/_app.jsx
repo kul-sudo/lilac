@@ -1,4 +1,4 @@
-import { Button, Center, ChakraProvider, Input, VStack } from '@chakra-ui/react'
+import { Button, Center, ChakraProvider, Input, VStack, useToast } from '@chakra-ui/react'
 import { useState, useEffect } from 'react'
 import Navbar from '@/components/Navbar'
 import theme from '@/lib/theme'
@@ -11,6 +11,7 @@ const MAIN_PAGE = 2
 export default ({ Component, pageProps }) => {
   const [requiresAuth, setRequiresAuth] = useState(BLANK)  
   const [usernameToShow, setUsernameToShow] = useState('')
+  const toast = useToast()
 
   useEffect(() => {
     fetch('/api/get-token')
@@ -50,7 +51,7 @@ export default ({ Component, pageProps }) => {
         setUsernameToShow(username)
       } else if (response.status === 401) {
         setRequiresAuth(AUTH)
-        fetch('/api/remove-token', {
+        await fetch('/api/remove-token', {
           method: 'DELETE'
         })
       }
@@ -67,7 +68,17 @@ export default ({ Component, pageProps }) => {
             <Input id="auth-username-input" placeholder="Type your username" />
             <Button onClick={async () => {
               const username = document.getElementById('auth-username-input').value
-              
+              if (username === '') {
+                toast({
+                  title: 'Error',
+                  description: 'The nickname is empty.',
+                  status: 'error',
+                  duration: 9000,
+                  isClosable: true
+                })
+
+                return
+              }
               try {
                 const response = await fetch('/api/authenticate', {
                   method: 'POST',

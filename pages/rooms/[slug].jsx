@@ -1,5 +1,5 @@
 import Head from 'next/head'
-import { memo, useEffect, useState } from 'react'
+import { memo, useEffect, useRef, useState } from 'react'
 import { Box, Button, Center, HStack, IconButton, Input, Text, VStack, useColorModeValue, useToast } from '@chakra-ui/react'
 import { useRouter } from 'next/router'
 import { CopyIcon, LockIcon, SendIcon } from 'lucide-react'
@@ -23,6 +23,8 @@ export default memo(() => {
   const uid = router.query.slug
   const [UIDToShow, setUIDToShow] = useState('Unavailable')
 
+  const messagesContainerRef = useRef(null)
+
   useEffect(() => {
     const checkRoomExistence = async roomUid => {
       if (await isRoomExistent(roomUid)) {
@@ -39,6 +41,12 @@ export default memo(() => {
   }, [])
 
   const [messages, setMessages] = useState([])
+
+  const scrollMessagesDown = () => {
+    if (messagesContainerRef.current) {
+      messagesContainerRef.current.scrollIntoView({ behavior: 'smooth', block: 'end' })
+    }
+  }
 
   const [username, setUsername] = useState('')
 
@@ -100,6 +108,8 @@ export default memo(() => {
         const time = `${date.getHours()}:${date.getMinutes().toLocaleString('en-gb', { minimumIntegerDigits: 2, useGrouping: false })}`
 
         setMessages(prevMessages => [...prevMessages, [data.message, data.username + ':', time]])
+      
+        scrollMessagesDown()
       })
 
       socket.on('userConnected', message => {
@@ -154,7 +164,7 @@ export default memo(() => {
       </Center>
 
       <Center>
-        <VStack mt="2rem" alignItems="start" width="100%" pb="3rem" maxWidth="300px">
+        <VStack mt="2rem" alignItems="start" width="100%" pb="8rem" maxWidth="300px" ref={messagesContainerRef}>
           {messages.map((element, index) => {
             return (
               <Box
@@ -189,8 +199,10 @@ export default memo(() => {
                 duration: 9000,
                 isClosable: true
               })
+
               return
             }
+
             socket.emit('sendMessage', { uid, message: messageInput.value, username })
 
             messageInput.value = ''
