@@ -5,10 +5,11 @@ export default async (req, res) => {
     res.status(405).end()
     return
   }
+
   try {
     const { username } = req.body
   
-    const colors = ['red', 'blue', 'teal', 'purple']
+    const colors = ['red', 'blue.600', 'teal', 'purple', 'cyan.600', 'teal.300']
 
     const randomColorIndex = Math.floor(Math.random() * colors.length)
     const randomColorElement = colors[randomColorIndex]

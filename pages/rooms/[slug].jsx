@@ -52,7 +52,7 @@ export default memo(() => {
 
   const toast = useToast()
 
-  let color;
+  const [color, setColor] = useState('')
 
   useEffect(() => {
     const fetchToken = async () => {
@@ -72,7 +72,8 @@ export default memo(() => {
           const messageInput = document.getElementById('message-input')
           const username = data.payload.username
 
-          color = data.payload.color
+          const color = data.payload.color
+          setColor(color)
           setUsername(username)
 
           const keyDownHandler = ({ key }) => {
@@ -130,13 +131,6 @@ export default memo(() => {
     }
 
     socketInitializer()
-
-    return () => {
-      if (socket) {
-        socket.emit('leaveRoom', uid)
-        socket.disconnect()
-      }
-    }
   }, [])
 
   return (

@@ -1,4 +1,4 @@
-import { Button, Center, ChakraProvider, Input, VStack, useToast } from '@chakra-ui/react'
+import { Button, Center, ChakraBaseProvider, Input, VStack, useToast } from '@chakra-ui/react'
 import { useState, useEffect } from 'react'
 import Navbar from '@/components/Navbar'
 import theme from '@/lib/theme'
@@ -61,7 +61,7 @@ export default ({ Component, pageProps }) => {
   }
 
   return (
-    <ChakraProvider theme={theme}>
+    <ChakraBaseProvider theme={theme}>
       {(requiresAuth === AUTH) && (
         <Center mt="2rem">
           <VStack>
@@ -109,6 +109,6 @@ export default ({ Component, pageProps }) => {
           <Component {...pageProps} />
         </>
       )}
-    </ChakraProvider>
+    </ChakraBaseProvider>
   )
 }
