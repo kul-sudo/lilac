@@ -114,7 +114,7 @@ export default memo(() => {
 
       socket.on('messageReceived', data => {
         const date = new Date()
-        const time = `${date.getHours()}:${date.getMinutes().toLocaleString('en-gb', { minimumIntegerDigits: 2, useGrouping: false })}`
+        const time = `${date.getHours().toLocaleString('en-gb', { minimumIntegerDigits: 2, useGrouping: false })}:${date.getMinutes().toLocaleString('en-gb', { minimumIntegerDigits: 2, useGrouping: false })}`
 
         setMessages(prevMessages => [...prevMessages, [data.message, data.username + ':', time, data.color]])
       

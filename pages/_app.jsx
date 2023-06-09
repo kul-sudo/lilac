@@ -79,6 +79,19 @@ export default ({ Component, pageProps }) => {
 
                 return
               }
+
+              if (username.length >= 9) {
+                toast({
+                  title: 'Error',
+                  description: 'Your nickname cannot consist of more than 9 letters.',
+                  status: 'error',
+                  duration: 9000,
+                  isClosable: true
+                })
+
+                return
+              }
+
               try {
                 const response = await fetch('/api/authenticate', {
                   method: 'POST',
