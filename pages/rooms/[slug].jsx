@@ -102,6 +102,8 @@ export default memo(() => {
     fetchToken()
   }, [])
 
+  const [usernameForLeave, setUsernameForLeave] = useState('')
+
   useEffect(() => {
     const socketInitializer = async () => {
       await fetch('/api/socket')
@@ -110,7 +112,31 @@ export default memo(() => {
         path: '/api/socket'
       })
 
-      socket.emit('createRoom', uid)
+      let usernameForServer;
+
+      await fetch('/api/get-token')
+        .then(response => response.json())
+        .then(async data => {
+          const token = data.token
+          await fetch('/api/verify-token', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ token })
+          })
+          .then(response => response.json())
+          .then(data => {
+            usernameForServer = data.payload.username
+
+            setUsernameForLeave(usernameForServer)
+          })
+      })
+
+
+      socket.on('connect', () => {
+        socket.emit('createRoom', { username: usernameForServer, uid })
+      })
 
       socket.on('messageReceived', data => {
         const date = new Date()
@@ -144,7 +170,7 @@ export default memo(() => {
 
       <Center>
         <Button position="fixed" top="3.5rem" backdropFilter="auto" backdropBlur="12px" onClick={() => {
-          socket.emit('leaveRoom', uid)
+          socket.emit('leaveRoom', { username: usernameForLeave, uid })
           router.push('/')
         }}>Leave</Button>
       </Center>
