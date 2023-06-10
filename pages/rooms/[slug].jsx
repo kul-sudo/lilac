@@ -55,7 +55,8 @@ export default memo(() => {
   const [color, setColor] = useState('')
 
   useEffect(() => {
-    const fetchToken = async () => {
+    let usernameForServer;
+    const toDo = async () => {
       await fetch('/api/get-token')
       .then(response => response.json())
       .then(async data => {
@@ -68,7 +69,37 @@ export default memo(() => {
           body: JSON.stringify({ token })
         })
         .then(response => response.json())
-        .then(data => {
+        .then(async data => {
+          usernameForServer = data.payload.username
+          setUsernameForLeave(usernameForServer)
+
+          await fetch('/api/socket')
+
+          socket = io(undefined, {
+            path: '/api/socket'
+          })
+
+          socket.on('connect', () => {
+            socket.emit('createRoom', { username: usernameForServer, uid })
+          })
+
+          socket.on('messageReceived', data => {
+            const date = new Date()
+            const time = `${date.getHours().toLocaleString('en-gb', { minimumIntegerDigits: 2, useGrouping: false })}:${date.getMinutes().toLocaleString('en-gb', { minimumIntegerDigits: 2, useGrouping: false })}`
+
+            setMessages(prevMessages => [...prevMessages, [data.message, data.username + ':', time, data.color]])
+
+            scrollMessagesDown()
+          })
+
+          socket.on('userConnected', message => {
+            setMessages(prevMessages => [...prevMessages, [message, undefined, undefined, undefined]])
+          })
+
+          socket.on('userLeft', message => {
+            setMessages(prevMessages => [...prevMessages, [message, undefined, undefined, undefined]])
+          })
+
           const messageInput = document.getElementById('message-input')
           const username = data.payload.username
 
@@ -99,65 +130,10 @@ export default memo(() => {
       })
     }
 
-    fetchToken()
+    toDo()
   }, [])
 
   const [usernameForLeave, setUsernameForLeave] = useState('')
-
-  useEffect(() => {
-    const socketInitializer = async () => {
-      await fetch('/api/socket')
-
-      socket = io(undefined, {
-        path: '/api/socket'
-      })
-
-      let usernameForServer;
-
-      await fetch('/api/get-token')
-        .then(response => response.json())
-        .then(async data => {
-          const token = data.token
-          await fetch('/api/verify-token', {
-            method: 'POST',
-            headers: {
-              'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({ token })
-          })
-          .then(response => response.json())
-          .then(data => {
-            usernameForServer = data.payload.username
-
-            setUsernameForLeave(usernameForServer)
-          })
-      })
-
-
-      socket.on('connect', () => {
-        socket.emit('createRoom', { username: usernameForServer, uid })
-      })
-
-      socket.on('messageReceived', data => {
-        const date = new Date()
-        const time = `${date.getHours().toLocaleString('en-gb', { minimumIntegerDigits: 2, useGrouping: false })}:${date.getMinutes().toLocaleString('en-gb', { minimumIntegerDigits: 2, useGrouping: false })}`
-
-        setMessages(prevMessages => [...prevMessages, [data.message, data.username + ':', time, data.color]])
-      
-        scrollMessagesDown()
-      })
-
-      socket.on('userConnected', message => {
-        setMessages(prevMessages => [...prevMessages, [message, undefined, undefined, undefined]])
-      })
-
-      socket.on('userLeft', message => {
-        setMessages(prevMessages => [...prevMessages, [message, undefined, undefined, undefined]])
-      })
-    }
-
-    socketInitializer()
-  }, [])
 
   return (
     <>
