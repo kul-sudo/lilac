@@ -96,6 +96,7 @@ export default memo(() => {
 
           socket.on('userConnected', message => {
             setMessages(prevMessages => [...prevMessages, [message, undefined, undefined, undefined]])
+            setLoading(false)
           })
 
           socket.on('userLeft', message => {
@@ -132,9 +133,7 @@ export default memo(() => {
       })
     }
 
-    toDo().then(() => {
-      setLoading(false)
-    })
+    toDo()
   }, [])
 
   const [usernameForLeave, setUsernameForLeave] = useState('')
