@@ -1,6 +1,6 @@
 import Head from 'next/head'
 import { memo, useEffect, useRef, useState } from 'react'
-import { Box, Button, Center, HStack, IconButton, Input, Text, VStack, useColorModeValue, useToast } from '@chakra-ui/react'
+import { Box, Button, Center, HStack, IconButton, Input, Spinner, Text, VStack, useColorModeValue, useToast } from '@chakra-ui/react'
 import { useRouter } from 'next/router'
 import { CopyIcon, LockIcon, SendIcon } from 'lucide-react'
 import io from 'socket.io-client'
@@ -53,6 +53,8 @@ export default memo(() => {
   const toast = useToast()
 
   const [color, setColor] = useState('')
+
+  const [loading, setLoading] = useState(true)
 
   useEffect(() => {
     let usernameForServer;
@@ -130,7 +132,9 @@ export default memo(() => {
       })
     }
 
-    toDo()
+    toDo().then(() => {
+      setLoading(false)
+    })
   }, [])
 
   const [usernameForLeave, setUsernameForLeave] = useState('')
@@ -170,6 +174,12 @@ export default memo(() => {
           </HStack>
         </VStack>
       </Center>
+
+      {loading && (
+        <Center mt="3rem">
+          <Spinner />
+        </Center>
+      )}
 
       <Center>
         <VStack mt="2rem" alignItems="start" width="100%" pb="8rem" maxWidth="300px" ref={messagesContainerRef}>
