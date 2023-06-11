@@ -5,6 +5,7 @@ import { useRouter } from 'next/router'
 import { CopyIcon, LockIcon, SendIcon } from 'lucide-react'
 import io from 'socket.io-client'
 import { addRoom, retrieveRooms } from '@/lib/firebaseOperations'
+import { For, block } from 'million/react'
 
 let socket;
 
@@ -17,6 +18,27 @@ const isRoomExistent = async roomUid => {
 
   return Object.values(rooms).some(room => room.uid === roomUid)
 }
+
+const ColumnBlock = block(
+  ({ element, index }) => {
+    return (
+      <Box
+        key={index}
+        wordBreak="break-word"
+        textAlign="left"
+        alignSelf="flex-start"
+      >
+        <HStack alignItems="top">
+          <Text color="gray">{element[2]}</Text>
+          <Text color={element[3]}>{element[1]}</Text>
+          <Box flex="1" wordBreak="break-word">
+            <Text>{element[0]}</Text>
+          </Box>
+        </HStack>
+      </Box>
+    )
+  }
+)
 
 export default memo(() => {
   const router = useRouter()
@@ -192,24 +214,13 @@ export default memo(() => {
 
       <Center>
         <VStack mt="2rem" alignItems="start" width="100%" pb="8rem" maxWidth="300px" ref={messagesContainerRef}>
-          {messages.map((element, index) => {
-            return (
-              <Box
-                key={index}
-                wordBreak="break-word"
-                textAlign="left"
-                alignSelf="flex-start"
-              >
-                <HStack alignItems="top">
-                  <Text color="gray">{element[2]}</Text>
-                  <Text color={element[3]}>{element[1]}</Text>
-                  <Box flex="1" wordBreak="break-word">
-                    <Text>{element[0]}</Text>
-                  </Box>
-                </HStack>
-              </Box>
-            )
-          })}
+          <For each={messages}>
+            {( element, index ) => {
+              return (
+                <ColumnBlock element={element} index={index} />
+              )
+            }}
+          </For>
         </VStack>
       </Center>
 
