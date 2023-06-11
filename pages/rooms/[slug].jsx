@@ -220,7 +220,11 @@ export default memo(() => {
               return
             }
 
-            socket.emit('sendMessage', { uid, message: messageInput.value, username, color })
+            const date = new Date()
+            const time = `${date.getHours().toLocaleString('en-gb', { minimumIntegerDigits: 2, useGrouping: false })}:${date.getMinutes().toLocaleString('en-gb', { minimumIntegerDigits: 2, useGrouping: false })}`
+            setMessages(prevMessages => [...prevMessages, [messageInput.value, username + ':', time, color]])
+
+            socket.broadcast.emit('sendMessage', { uid, message: messageInput.value, username, color })
 
             messageInput.value = ''
           }} />
