@@ -3,9 +3,9 @@ import { memo, useEffect, useRef, useState } from 'react'
 import { Box, Button, Center, HStack, IconButton, Input, Spinner, Text, VStack, useColorModeValue, useToast } from '@chakra-ui/react'
 import { useRouter } from 'next/router'
 import { CopyIcon, LockIcon, SendIcon } from 'lucide-react'
-import io from 'socket.io-client'
 import { addRoom, retrieveRooms } from '@/lib/firebaseOperations'
 import { For, block } from 'million/react'
+import io from 'socket.io-client'
 
 let socket;
 
@@ -21,7 +21,6 @@ const isRoomExistent = async roomUid => {
 
 const ColumnBlock = block(
   ({ element, index }) => {
-    console.log(element[3])
     return (
       <Box
         key={index}
@@ -150,6 +149,10 @@ export default memo(() => {
                 return
               }
 
+              if (loading) {
+                return
+              }
+
               const date = new Date()
               const time = `${date.getHours().toLocaleString('en-gb', { minimumIntegerDigits: 2, useGrouping: false })}:${date.getMinutes().toLocaleString('en-gb', { minimumIntegerDigits: 2, useGrouping: false })}`
 
@@ -240,6 +243,10 @@ export default memo(() => {
                 isClosable: true
               })
 
+              return
+            }
+
+            if (loading) {
               return
             }
 
