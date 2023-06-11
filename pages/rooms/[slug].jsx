@@ -49,6 +49,8 @@ export default memo(() => {
   }
 
   const [username, setUsername] = useState('')
+  const [messageInputValue, setMessageInputValue] = useState('')
+  const messageInputValueRef = useRef(null)
 
   const toast = useToast()
 
@@ -58,6 +60,7 @@ export default memo(() => {
 
   useEffect(() => {
     let usernameForServer;
+
     const toDo = async () => {
       await fetch('/api/get-token')
       .then(response => response.json())
@@ -112,7 +115,7 @@ export default memo(() => {
 
           const keyDownHandler = ({ key }) => {
             if (key === 'Enter') {
-              if (messageInput.value === '') {
+              if (document.getElementById('message-input').value === '') {
                 toast({
                   title: 'Error',
                   description: 'The message typed in the input is empty.',
@@ -120,11 +123,16 @@ export default memo(() => {
                   duration: 9000,
                   isClosable: true
                 })
+
                 return
               }
 
-              socket.emit('sendMessage', { uid, message: document.getElementById('message-input').value, username, color })
-              messageInput.value = ''
+              const date = new Date()
+              const time = `${date.getHours().toLocaleString('en-gb', { minimumIntegerDigits: 2, useGrouping: false })}:${date.getMinutes().toLocaleString('en-gb', { minimumIntegerDigits: 2, useGrouping: false })}`
+
+              setMessages(prevMessages => [...prevMessages, [messageInputValueRef.current.value, username + ':', time, color]])
+              socket.emit('sendMessage', { uid, message: messageInputValueRef.current.value, username, color })
+              setMessageInputValue('')
             }
           }
 
@@ -205,10 +213,11 @@ export default memo(() => {
 
       <Center>
         <HStack position="fixed" bottom="5" backdropFilter="auto" backdropBlur="12px">
-          <Input id="message-input" placeholder="Type the message" variant="filled" />  
+          <Input id="message-input" placeholder="Type the message" variant="filled" ref={messageInputValueRef} value={messageInputValue} onChange={event => {
+            setMessageInputValue(event.target.value)
+          }} />  
           <IconButton icon={<SendIcon />} onClick={() => {
-            const messageInput = document.getElementById('message-input')
-            if (messageInput.value === '') {
+            if (messageInputValue === '') {
               toast({
                 title: 'Error',
                 description: 'The message typed in the input is empty.',
@@ -222,11 +231,11 @@ export default memo(() => {
 
             const date = new Date()
             const time = `${date.getHours().toLocaleString('en-gb', { minimumIntegerDigits: 2, useGrouping: false })}:${date.getMinutes().toLocaleString('en-gb', { minimumIntegerDigits: 2, useGrouping: false })}`
-            setMessages(prevMessages => [...prevMessages, [messageInput.value, username + ':', time, color]])
+            setMessages(prevMessages => [...prevMessages, [messageInputValue, username + ':', time, color]])
 
-            socket.broadcast.emit('sendMessage', { uid, message: messageInput.value, username, color })
+            socket.emit('sendMessage', { uid, message: messageInputValue, username, color })
 
-            messageInput.value = ''
+            setMessageInputValue('')
           }} />
         </HStack>
       </Center>
