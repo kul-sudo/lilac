@@ -131,6 +131,8 @@ export default memo(() => {
               const time = `${date.getHours().toLocaleString('en-gb', { minimumIntegerDigits: 2, useGrouping: false })}:${date.getMinutes().toLocaleString('en-gb', { minimumIntegerDigits: 2, useGrouping: false })}`
 
               setMessages(prevMessages => [...prevMessages, [messageInputValueRef.current.value, username + ':', time, color]])
+              scrollMessagesDown()
+
               socket.emit('sendMessage', { uid, message: messageInputValueRef.current.value, username, color })
               setMessageInputValue('')
             }
@@ -232,6 +234,7 @@ export default memo(() => {
             const date = new Date()
             const time = `${date.getHours().toLocaleString('en-gb', { minimumIntegerDigits: 2, useGrouping: false })}:${date.getMinutes().toLocaleString('en-gb', { minimumIntegerDigits: 2, useGrouping: false })}`
             setMessages(prevMessages => [...prevMessages, [messageInputValue, username + ':', time, color]])
+            scrollMessagesDown()
 
             socket.emit('sendMessage', { uid, message: messageInputValue, username, color })
 
