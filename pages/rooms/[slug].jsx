@@ -21,6 +21,7 @@ const isRoomExistent = async roomUid => {
 
 const ColumnBlock = block(
   ({ element, index }) => {
+    console.log(element[3])
     return (
       <Box
         key={index}
