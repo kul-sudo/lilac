@@ -1,8 +1,8 @@
 import Head from 'next/head'
 import { memo, useEffect, useRef, useState } from 'react'
-import { Box, Button, Center, HStack, IconButton, Input, Spinner, Text, VStack, useColorModeValue, useToast } from '@chakra-ui/react'
+import { Image as ChakraImage, Popover, PopoverTrigger, PopoverContent, PopoverArrow, PopoverCloseButton, PopoverBody, PopoverHeader, Box, Button, Center, HStack, IconButton, Input, Spinner, Text, VStack, AlertDialog, AlertDialogOverlay, AlertDialogContent, AlertDialogBody, AlertDialogCloseButton, useColorModeValue, useToast, useDisclosure } from '@chakra-ui/react'
 import { useRouter } from 'next/router'
-import { CopyIcon, LockIcon, SendIcon } from 'lucide-react'
+import { CopyIcon, Image as ImageIcon, LockIcon, SendIcon } from 'lucide-react'
 import { addRoom, retrieveRooms } from '@/lib/firebaseOperations'
 import { For, block } from 'million/react'
 import io from 'socket.io-client'
@@ -19,8 +19,32 @@ const isRoomExistent = async roomUid => {
   return Object.values(rooms).some(room => room.uid === roomUid)
 }
 
+const isImage = async url => {
+  try {
+    const response = await fetch(url, { method: 'HEAD' })
+    if (!response.ok) {
+      return false
+    }
+
+    const imgElement = new Image()
+    await new Promise((resolve, reject) => {
+      imgElement.onload = function() {
+        resolve()
+      }
+      imgElement.onerror = function() {
+        reject()
+      }
+      imgElement.src = url
+    })
+
+    return imgElement.height > 0
+  } catch (error) {
+    return false
+  }
+}
+
 const ColumnBlock = block(
-  ({ element, index }) => {
+  ({ element, index, setAlertDialogImage, onOpen }) => {
     return (
       <Box
         key={index}
@@ -35,6 +59,17 @@ const ColumnBlock = block(
             <Text>{element[0]}</Text>
           </Box>
         </HStack>
+        {element[4] !== '' && (
+          <ChakraImage
+            rounded="0.2rem"
+            width="40%"
+            onClick={() => {
+              setAlertDialogImage(element[4])
+              onOpen()
+            }}
+            src={element[4]}
+          />
+        )}
       </Box>
     )
   }
@@ -46,6 +81,7 @@ export default memo(() => {
   const [UIDToShow, setUIDToShow] = useState('Unavailable')
 
   const messagesContainerRef = useRef(null)
+  const audioRef = useRef(null)
 
   useEffect(() => {
     const checkRoomExistence = async roomUid => {
@@ -79,6 +115,7 @@ export default memo(() => {
   const [color, setColor] = useState('')
 
   const [loading, setLoading] = useState(true)
+  const [shouldPlay, setShouldPlay] = useState(true)
 
   useEffect(() => {
     let usernameForServer;
@@ -114,18 +151,22 @@ export default memo(() => {
             const date = new Date()
             const time = `${date.getHours().toLocaleString('en-gb', { minimumIntegerDigits: 2, useGrouping: false })}:${date.getMinutes().toLocaleString('en-gb', { minimumIntegerDigits: 2, useGrouping: false })}`
 
-            setMessages(prevMessages => [...prevMessages, [data.message, data.username + ':', time, data.color]])
+            setMessages(prevMessages => [...prevMessages, [data.message, data.username + ':', time, data.color, data.image]])
 
             scrollMessagesDown()
+
+            if (shouldPlayRef.current) {
+              audioRef.current.play()
+            }
           })
 
           socket.on('userConnected', message => {
-            setMessages(prevMessages => [...prevMessages, [message, undefined, undefined, undefined]])
+            setMessages(prevMessages => [...prevMessages, [message, undefined, undefined, undefined, undefined]])
             setLoading(false)
           })
 
           socket.on('userLeft', message => {
-            setMessages(prevMessages => [...prevMessages, [message, undefined, undefined, undefined]])
+            setMessages(prevMessages => [...prevMessages, [message, undefined, undefined, undefined, undefined]])
           })
 
           const messageInput = document.getElementById('message-input')
@@ -135,9 +176,9 @@ export default memo(() => {
           setColor(color)
           setUsername(username)
 
-          const keyDownHandler = ({ key }) => {
+          const keyDownHandler = async ({ key }) => {
             if (key === 'Enter') {
-              if (document.getElementById('message-input').value === '') {
+              if (document.getElementById('message-input').value === '' && imageUrlInputRef.current.value === '') {
                 toast({
                   title: 'Error',
                   description: 'The message typed in the input is empty.',
@@ -149,14 +190,29 @@ export default memo(() => {
                 return
               }
 
+              if (!(await isImage(imageUrlInputRef.current.value)) && imageUrlInputRef.current.value !== '') {
+                toast({
+                  title: 'Error',
+                  description: 'The image URL is incorrect.',
+                  status: 'error',
+                  duration: 9000,
+                  isClosable: true
+                })
+
+                return
+              }
+
               const date = new Date()
               const time = `${date.getHours().toLocaleString('en-gb', { minimumIntegerDigits: 2, useGrouping: false })}:${date.getMinutes().toLocaleString('en-gb', { minimumIntegerDigits: 2, useGrouping: false })}`
 
-              setMessages(prevMessages => [...prevMessages, [messageInputValueRef.current.value, username + ':', time, color]])
+              setMessages(prevMessages => [...prevMessages, [messageInputValueRef.current.value, username + ':', time, color, imageUrlInputRef.current.value]])
               scrollMessagesDown()
 
-              socket.emit('sendMessage', { uid, message: messageInputValueRef.current.value, username, color })
+              socket.emit('sendMessage', { uid, message: messageInputValueRef.current.value, username, color, image: imageUrlInputRef.current.value })
+              
               setMessageInputValue('')
+
+              imageUrlInputRef.current.value = ''
             }
           }
 
@@ -168,7 +224,31 @@ export default memo(() => {
     toDo()
   }, [])
 
+  const shouldPlayRef = useRef(shouldPlay)
+
+  const onFocus = () => setTimeout(() => {
+    shouldPlayRef.current = false
+  }, 3000)
+  const onBlur = () => setTimeout(() => {
+    shouldPlayRef.current = true
+  }, 8000)
+
+  useEffect(() => {
+    window.addEventListener('focus', onFocus)
+    window.addEventListener('blur', onBlur)
+
+    return () => {
+      window.removeEventListener('focus', onFocus)
+      window.removeEventListener('blur', onBlur)
+    }
+  }, [])
+
   const [usernameForLeave, setUsernameForLeave] = useState('')
+  const imageUrlInputRef = useRef(null)
+
+  const { isOpen, onOpen, onClose } = useDisclosure()
+  const cancelRef = useRef()
+  const [alertDialogImage, setAlertDialogImage] = useState('')
 
   return (
     <>
@@ -178,6 +258,24 @@ export default memo(() => {
         <meta name="viewport" content="width=device-width, initial-scale=1" />
         <link rel="icon" href="/favicon.ico" />
       </Head>
+
+      <audio ref={audioRef} src="/meow-notification-sound.mp3" />
+      
+      <AlertDialog
+        leastDestructiveRef={cancelRef}
+        onClose={onClose}
+        isOpen={isOpen}
+        isCentered
+      >
+        <AlertDialogOverlay />
+
+        <AlertDialogContent>
+          <AlertDialogCloseButton />
+            <ChakraImage
+              src={alertDialogImage}
+            />
+        </AlertDialogContent>
+      </AlertDialog>
 
       <Center>
         <Button position="fixed" top="3.5rem" backdropFilter="auto" backdropBlur="12px" onClick={() => {
@@ -217,24 +315,40 @@ export default memo(() => {
           <For each={messages}>
             {( element, index ) => {
               return (
-                <ColumnBlock element={element} index={index} />
+                <ColumnBlock element={element} index={index} setAlertDialogImage={setAlertDialogImage} onOpen={onOpen} />
               )
             }}
           </For>
         </VStack>
       </Center>
-
+      
       <Center>
         <HStack position="fixed" bottom="5" backdropFilter="auto" backdropBlur="12px">
+          <Popover>
+            <PopoverTrigger>
+              <IconButton icon={<ImageIcon />} onClick={() => {}} />
+            </PopoverTrigger>
+            <PopoverContent>
+              <PopoverArrow />
+              <PopoverCloseButton />
+              <PopoverHeader>What's the image URL?</PopoverHeader>
+              <PopoverBody>
+                <Input ref={imageUrlInputRef} placeholder="URL" onChange={event => {
+                  imageUrlInputRef.current.value = event.target.value
+                }} />
+              </PopoverBody>
+            </PopoverContent>
+          </Popover>
+
           <Input id="message-input" placeholder="Type the message" variant="filled" ref={messageInputValueRef} value={messageInputValue} onChange={event => {
             setMessageInputValue(event.target.value)
           }} />  
-          <IconButton icon={<SendIcon />} onClick={() => {
+          <IconButton icon={<SendIcon />} onClick={async () => {
             if (loading) {
               return
             }
 
-            if (messageInputValue === '') {
+            if (messageInputValue === '' && imageUrlInputRef.current.value === '') {
               toast({
                 title: 'Error',
                 description: 'The message typed in the input is empty.',
@@ -246,14 +360,28 @@ export default memo(() => {
               return
             }
 
+            if (!(await isImage(imageUrlInputRef.current.value)) && imageUrlInputRef.current.value !== '') {
+              toast({
+                title: 'Error',
+                description: 'The image URL is incorrect.',
+                status: 'error',
+                duration: 9000,
+                isClosable: true
+              })
+
+              return
+            }
+
             const date = new Date()
             const time = `${date.getHours().toLocaleString('en-gb', { minimumIntegerDigits: 2, useGrouping: false })}:${date.getMinutes().toLocaleString('en-gb', { minimumIntegerDigits: 2, useGrouping: false })}`
-            setMessages(prevMessages => [...prevMessages, [messageInputValue, username + ':', time, color]])
+            setMessages(prevMessages => [...prevMessages, [messageInputValue, username + ':', time, color, imageUrlInputRef.current.value]])
             scrollMessagesDown()
 
-            socket.emit('sendMessage', { uid, message: messageInputValue, username, color })
+            socket.emit('sendMessage', { uid, message: messageInputValue, username, color, image: imageUrlInputRef.current.value })
 
             setMessageInputValue('')
+            
+            imageUrlInputRef.current.value = ''
           }} />
         </HStack>
       </Center>

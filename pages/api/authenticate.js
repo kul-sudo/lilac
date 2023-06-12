@@ -9,7 +9,7 @@ export default async (req, res) => {
   try {
     const { username } = req.body
   
-    const colors = ['#f56565', '#2b6cb0', '#319795', '#b794f4', '#00A3c4', '#4fd1c5']
+    const colors = ['#f56565', '#319795', '#b794f4', '#68d391', '#44337a']
 
     const randomColorIndex = Math.floor(Math.random() * colors.length)
     const randomColorElement = colors[randomColorIndex]
