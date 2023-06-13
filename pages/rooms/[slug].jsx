@@ -1,8 +1,8 @@
 import Head from 'next/head'
 import { memo, useEffect, useRef, useState } from 'react'
-import { Image as ChakraImage, Popover, PopoverTrigger, PopoverContent, PopoverArrow, PopoverCloseButton, PopoverBody, PopoverHeader, Box, Button, Center, HStack, IconButton, Input, Spinner, Text, VStack, AlertDialog, AlertDialogOverlay, AlertDialogContent, AlertDialogBody, AlertDialogCloseButton, useColorModeValue, useToast, useDisclosure } from '@chakra-ui/react'
+import { Image as ChakraImage, Popover, PopoverTrigger, PopoverContent, PopoverArrow, PopoverCloseButton, PopoverBody, PopoverHeader, Box, Button, Center, HStack, IconButton, Input, Spinner, Text, VStack, AlertDialog, AlertDialogOverlay, AlertDialogContent, AlertDialogCloseButton, FormControl, useColorModeValue, useToast, useDisclosure } from '@chakra-ui/react'
 import { useRouter } from 'next/router'
-import { CopyIcon, Image as ImageIcon, LockIcon, SendIcon } from 'lucide-react'
+import { CopyIcon, Image as ImageIcon, LockIcon, SendIcon, UploadIcon, XIcon } from 'lucide-react'
 import { addRoom, retrieveRooms } from '@/lib/firebaseOperations'
 import { For, block } from 'million/react'
 import io from 'socket.io-client'
@@ -17,30 +17,6 @@ const isRoomExistent = async roomUid => {
   }
 
   return Object.values(rooms).some(room => room.uid === roomUid)
-}
-
-const isImage = async url => {
-  try {
-    const response = await fetch(url, { method: 'HEAD' })
-    if (!response.ok) {
-      return false
-    }
-
-    const imgElement = new Image()
-    await new Promise((resolve, reject) => {
-      imgElement.onload = function() {
-        resolve()
-      }
-      imgElement.onerror = function() {
-        reject()
-      }
-      imgElement.src = url
-    })
-
-    return imgElement.height > 0
-  } catch (error) {
-    return false
-  }
 }
 
 const ColumnBlock = block(
@@ -116,6 +92,27 @@ export default memo(() => {
   const [loading, setLoading] = useState(true)
   const loadingRef = useRef(loading)
 
+  const [base64Image, setBase64Image] = useState('')
+  const base64ImageRef = useRef(base64Image)
+
+  const [selectedFilename, setSelectedFilename] = useState('')
+
+  const handleFileChange = event => {
+    const file = event.target.files[0]
+
+    setSelectedFilename(file.name)
+
+    const reader = new FileReader()
+
+    reader.onloadend = () => {
+      base64ImageRef.current = reader.result
+    }
+
+    if (file) {
+      reader.readAsDataURL(file)
+    }
+  }
+
   useEffect(() => {
     let usernameForServer;
 
@@ -189,29 +186,18 @@ export default memo(() => {
                 return
               }
 
-              if (imageUrlInputRef.current.value !== '' && !(await isImage(imageUrlInputRef.current.value)) && imageUrlInputRef.current.value !== '') {
-                toast({
-                  title: 'Error',
-                  description: 'The image URL is incorrect.',
-                  status: 'error',
-                  duration: 9000,
-                  isClosable: true
-                })
-
-                return
-              }
-
               const date = new Date()
               const time = `${date.getHours().toLocaleString('en-gb', { minimumIntegerDigits: 2, useGrouping: false })}:${date.getMinutes().toLocaleString('en-gb', { minimumIntegerDigits: 2, useGrouping: false })}`
 
-              setMessages(prevMessages => [...prevMessages, [messageInputValueRef.current.value, username + ':', time, color, imageUrlInputRef.current.value]])
+              setMessages(prevMessages => [...prevMessages, [messageInputValueRef.current.value, username + ':', time, color, base64ImageRef.current]])
               scrollMessagesDown()
 
-              socket.emit('sendMessage', { uid, message: messageInputValueRef.current.value, username, color, image: imageUrlInputRef.current.value })
+              socket.emit('sendMessage', { uid, message: messageInputValueRef.current.value, username, color, image: base64ImageRef.current })
               
               setMessageInputValue('')
 
               imageUrlInputRef.current.value = ''
+              setSelectedFilename('unselected')
             }
           }
 
@@ -311,9 +297,32 @@ export default memo(() => {
               <PopoverCloseButton />
               <PopoverHeader>What's the image URL?</PopoverHeader>
               <PopoverBody>
-                <Input ref={imageUrlInputRef} placeholder="URL" onChange={event => {
-                  imageUrlInputRef.current.value = event.target.value
-                }} />
+                <FormControl>
+                  <Input display="none" type="file" ref={imageUrlInputRef} onChange={handleFileChange} accept="image/*" id="file-input" />
+
+                  <HStack>
+                    <Text color="grey">Currently selected file: </Text>
+                    <Text>{selectedFilename ? selectedFilename : 'unselected'}</Text>
+                  </HStack>
+                  <label htmlFor="file-input">
+                    <IconButton
+                      mt="0.5rem"
+                      as="span"
+                      icon={<UploadIcon />}
+                    />
+                  </label>
+                  <IconButton
+                    mt="0.5rem"
+                    ml="0.5rem"
+                    as="span"
+                    icon={<XIcon />}
+                    onClick={() => {
+                      imageUrlInputRef.current.value = ''
+
+                      setSelectedFilename('unselected')
+                    }}
+                  />
+                </FormControl>
               </PopoverBody>
             </PopoverContent>
           </Popover>
@@ -338,28 +347,17 @@ export default memo(() => {
               return
             }
 
-            if (imageUrlInputRef.current.value !== '' && !(await isImage(imageUrlInputRef.current.value)) && imageUrlInputRef.current.value !== '') {
-              toast({
-                title: 'Error',
-                description: 'The image URL is incorrect.',
-                status: 'error',
-                duration: 9000,
-                isClosable: true
-              })
-
-              return
-            }
-
             const date = new Date()
             const time = `${date.getHours().toLocaleString('en-gb', { minimumIntegerDigits: 2, useGrouping: false })}:${date.getMinutes().toLocaleString('en-gb', { minimumIntegerDigits: 2, useGrouping: false })}`
-            setMessages(prevMessages => [...prevMessages, [messageInputValue, username + ':', time, color, imageUrlInputRef.current.value]])
+            setMessages(prevMessages => [...prevMessages, [messageInputValue, username + ':', time, color, base64ImageRef.current]])
             scrollMessagesDown()
 
-            socket.emit('sendMessage', { uid, message: messageInputValue, username, color, image: imageUrlInputRef.current.value })
+            socket.emit('sendMessage', { uid, message: messageInputValue, username, color, image: base64ImageRef.current })
 
             setMessageInputValue('')
             
             imageUrlInputRef.current.value = ''
+            setSelectedFilename('unselected')
           }} />
         </HStack>
       </Center>
