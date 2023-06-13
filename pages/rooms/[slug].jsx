@@ -3,21 +3,12 @@ import { memo, useEffect, useRef, useState } from 'react'
 import { Image as ChakraImage, Popover, PopoverTrigger, PopoverContent, PopoverArrow, PopoverCloseButton, PopoverBody, PopoverHeader, Box, Button, Center, HStack, IconButton, Input, Spinner, Text, VStack, AlertDialog, AlertDialogOverlay, AlertDialogContent, AlertDialogCloseButton, FormControl, useColorModeValue, useToast, useDisclosure } from '@chakra-ui/react'
 import { useRouter } from 'next/router'
 import { CopyIcon, Image as ImageIcon, LockIcon, SendIcon, UploadIcon, XIcon } from 'lucide-react'
-import { addRoom, retrieveRooms } from '@/lib/firebaseOperations'
+import { addRoom } from '@/lib/firebaseOperations'
+import { isRoomExistent } from '@/lib/isRoomExistent'
 import { For, block } from 'million/react'
 import io from 'socket.io-client'
 
 let socket;
-
-const isRoomExistent = async roomUid => {
-  const rooms = await retrieveRooms()
-
-  if (rooms === null) {
-    return false 
-  }
-
-  return Object.values(rooms).some(room => room.uid === roomUid)
-}
 
 const ColumnBlock = block(
   ({ element, index, setAlertDialogImage, onOpen }) => {

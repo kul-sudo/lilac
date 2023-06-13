@@ -1,22 +1,13 @@
 import Head from 'next/head'
 import { Button, HStack, Input, Text, VStack, useColorModeValue } from '@chakra-ui/react'
 import { BadgeCheckIcon } from 'lucide-react'
-import { addRoom, retrieveRooms } from '@/lib/firebaseOperations'
+import { addRoom } from '@/lib/firebaseOperations'
+import { isRoomExistent } from '@/lib/isRoomExistent'
 import { useEffect } from 'react'
 import { useRouter } from 'next/router'
 import io from 'socket.io-client'
 
 let socket;
-
-const isRoomExistent = async roomUid => {
-  const rooms = await retrieveRooms()
-
-  if (rooms === null) {
-    return false 
-  }
-
-  return Object.values(rooms).some(room => room.uid === roomUid)
-}
 
 export default () => {
   const router = useRouter()
