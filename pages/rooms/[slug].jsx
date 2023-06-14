@@ -12,6 +12,7 @@ let socket;
 
 const ColumnBlock = block(
   ({ element, index, setAlertDialogImage, onOpen }) => {
+    console.log(element)
     return (
       <Box
         key={index}
@@ -86,21 +87,53 @@ export default memo(() => {
   const [base64Image, setBase64Image] = useState('')
   const base64ImageRef = useRef(base64Image)
 
-  const [selectedFilename, setSelectedFilename] = useState('')
+  const [isFileSelected, setFileSelected] = useState(false)
+  const isFileSelectedRef = useRef(isFileSelected)
 
   const handleFileChange = event => {
     const file = event.target.files[0]
 
-    setSelectedFilename(file.name)
+    setFileSelected(true)
 
     const reader = new FileReader()
 
     reader.onloadend = () => {
       base64ImageRef.current = reader.result
+      setBase64Image(reader.result)
     }
 
     if (file) {
       reader.readAsDataURL(file)
+    }
+  }
+
+  const { isOpen, onOpen, onClose } = useDisclosure()
+  const { isOpen: PopoverIsOpen, onOpen: PopoverOnOpen, onClose: PopoverOnClose } = useDisclosure()
+
+  const firstFieldRef = useRef(null)
+
+  const handlePaste = event => {
+    if (!PopoverIsOpen) {
+      return
+    }
+    const clipboardData = event.clipboardData
+    if (clipboardData.items && clipboardData.items.length > 0) {
+      for (let i = 0; i < clipboardData.items.length; i++) {
+        const item = clipboardData.items[i]
+        if (item.type.indexOf('image') !== -1) {
+          const blob = item.getAsFile()
+          const reader = new FileReader()
+          reader.onloadend = () => {
+            setFileSelected(true)
+
+            const base64Image = reader.result
+
+            base64ImageRef.current = base64Image
+            setBase64Image(reader.result)
+          }
+          reader.readAsDataURL(blob)
+        }
+      }
     }
   }
 
@@ -165,7 +198,7 @@ export default memo(() => {
                 return
               }
 
-              if (document.getElementById('message-input').value === '' && imageUrlInputRef.current.value === '') {
+              if (messageInputValueRef.current === '' && !isFileSelectedRef.current) {
                 toast({
                   title: 'Error',
                   description: 'The message typed in the input is empty.',
@@ -187,8 +220,12 @@ export default memo(() => {
               
               setMessageInputValue('')
 
-              imageUrlInputRef.current.value = ''
-              setSelectedFilename('unselected')
+              setFileSelected(false)
+
+              base64ImageRef.current = ''
+              setBase64Image('')
+
+              setFileSelected(false)
             }
           }
 
@@ -200,10 +237,17 @@ export default memo(() => {
     toDo()
   }, [])
 
-  const [usernameForLeave, setUsernameForLeave] = useState('')
-  const imageUrlInputRef = useRef(null)
 
-  const { isOpen, onOpen, onClose } = useDisclosure()
+  useEffect(() => {
+    document.addEventListener('paste', handlePaste)
+
+    return () => {
+      document.removeEventListener('paste', handlePaste)
+    }
+  }, [PopoverIsOpen])
+
+  const [usernameForLeave, setUsernameForLeave] = useState('')
+
   const cancelRef = useRef()
   const [alertDialogImage, setAlertDialogImage] = useState('')
 
@@ -279,7 +323,12 @@ export default memo(() => {
       
       <Center>
         <HStack position="fixed" bottom="5" backdropFilter="auto" backdropBlur="12px">
-          <Popover>
+          <Popover
+            isOpen={PopoverIsOpen}
+            onOpen={PopoverOnOpen}
+            onClose={PopoverOnClose}
+            initialFocusRef={firstFieldRef}
+          >
             <PopoverTrigger>
               <IconButton icon={<ImageIcon />} onClick={() => {}} />
             </PopoverTrigger>
@@ -289,11 +338,18 @@ export default memo(() => {
               <PopoverHeader>What's the image URL?</PopoverHeader>
               <PopoverBody>
                 <FormControl>
-                  <Input display="none" type="file" ref={imageUrlInputRef} onChange={handleFileChange} accept="image/*" id="file-input" />
+                  <Input display="none" type="file" onChange={handleFileChange} accept="image/*" id="file-input" />
 
                   <HStack>
                     <Text color="grey">Currently selected file: </Text>
-                    <Text>{selectedFilename ? selectedFilename : 'unselected'}</Text>
+                    {isFileSelected ? (
+                      <ChakraImage
+                        src={base64Image}
+                        width="25%"
+                      />
+                    ) : (
+                      <Text>unselected</Text>
+                    )}
                   </HStack>
                   <label htmlFor="file-input">
                     <IconButton
@@ -308,9 +364,10 @@ export default memo(() => {
                     as="span"
                     icon={<XIcon />}
                     onClick={() => {
-                      imageUrlInputRef.current.value = ''
+                      setFileSelected(false)
 
-                      setSelectedFilename('unselected')
+                      base64ImageRef.current = ''
+                      setBase64Image('')
                     }}
                   />
                 </FormControl>
@@ -326,7 +383,7 @@ export default memo(() => {
               return
             }
 
-            if (messageInputValue === '' && imageUrlInputRef.current.value === '') {
+            if (messageInputValue === '' && !isFileSelected) {
               toast({
                 title: 'Error',
                 description: 'The message typed in the input is empty.',
@@ -347,8 +404,10 @@ export default memo(() => {
 
             setMessageInputValue('')
             
-            imageUrlInputRef.current.value = ''
-            setSelectedFilename('unselected')
+            base64ImageRef.current = ''
+            setBase64Image('')
+
+            setFileSelected(false)
           }} />
         </HStack>
       </Center>
