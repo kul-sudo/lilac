@@ -75,6 +75,7 @@ export default memo(() => {
 
   const [username, setUsername] = useState('')
   const [messageInputValue, setMessageInputValue] = useState('')
+  const messageInputValueStateRef = useRef(messageInputValue)
   const messageInputValueRef = useRef(null)
 
   const toast = useToast()
@@ -111,6 +112,8 @@ export default memo(() => {
   const { isOpen: PopoverIsOpen, onOpen: PopoverOnOpen, onClose: PopoverOnClose } = useDisclosure()
 
   const firstFieldRef = useRef(null)
+
+  const sendButtonRef = useRef(null)
 
   const handlePaste = event => {
     if (!PopoverIsOpen) {
@@ -197,35 +200,8 @@ export default memo(() => {
               if (loadingRef.current) {
                 return
               }
-
-              if (messageInputValueRef.current === '' && !isFileSelectedRef.current) {
-                toast({
-                  title: 'Error',
-                  description: 'The message typed in the input is empty.',
-                  status: 'error',
-                  duration: 9000,
-                  isClosable: true
-                })
-
-                return
-              }
-
-              const date = new Date()
-              const time = `${date.getHours().toLocaleString('en-gb', { minimumIntegerDigits: 2, useGrouping: false })}:${date.getMinutes().toLocaleString('en-gb', { minimumIntegerDigits: 2, useGrouping: false })}`
-
-              setMessages(prevMessages => [...prevMessages, [messageInputValueRef.current.value, username + ':', time, color, base64ImageRef.current]])
-              scrollMessagesDown()
-
-              socket.emit('sendMessage', { uid, message: messageInputValueRef.current.value, username, color, image: base64ImageRef.current })
               
-              setMessageInputValue('')
-
-              setFileSelected(false)
-
-              base64ImageRef.current = ''
-              setBase64Image('')
-
-              setFileSelected(false)
+              sendButtonRef.current.click()
             }
           }
 
@@ -378,7 +354,7 @@ export default memo(() => {
           <Input id="message-input" placeholder="Type the message" variant="filled" ref={messageInputValueRef} value={messageInputValue} onChange={event => {
             setMessageInputValue(event.target.value)
           }} />  
-          <IconButton icon={<SendIcon />} onClick={async () => {
+          <IconButton ref={sendButtonRef} icon={<SendIcon />} onClick={async () => {
             if (loadingRef.current) {
               return
             }
