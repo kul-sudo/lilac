@@ -89,7 +89,6 @@ export default memo(() => {
   const fileInputRef = useRef(null)
 
   const handleFileChange = event => {
-    console.log(base64Image)
     const file = event.target.files[0]
 
     setFileSelected(true)
