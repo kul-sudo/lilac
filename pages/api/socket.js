@@ -9,7 +9,8 @@ export default (req, res) => {
 
   const io = new Server(res.socket.server, {
     path: '/api/socket',
-    addTrailingSlash: false
+    addTrailingSlash: false,
+    maxHttpBufferSize: 1e8
   })
 
   res.socket.server.io = io
