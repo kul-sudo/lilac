@@ -156,8 +156,7 @@ export default memo(() => {
           await fetch('/api/socket')
 
           socket = io(undefined, {
-            path: '/api/socket',
-            transports: ['polling']
+            path: '/api/socket'
           })
 
           socket.on('connect', () => {
