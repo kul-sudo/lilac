@@ -75,7 +75,6 @@ export default memo(() => {
 
   const [username, setUsername] = useState('')
   const [messageInputValue, setMessageInputValue] = useState('')
-  const messageInputValueStateRef = useRef(messageInputValue)
   const messageInputValueRef = useRef(null)
 
   const toast = useToast()
@@ -83,13 +82,10 @@ export default memo(() => {
   const [color, setColor] = useState('')
 
   const [loading, setLoading] = useState(true)
-  const loadingRef = useRef(loading)
 
   const [base64Image, setBase64Image] = useState('')
-  const base64ImageRef = useRef(base64Image)
 
   const [isFileSelected, setFileSelected] = useState(false)
-  const isFileSelectedRef = useRef(isFileSelected)
 
   const handleFileChange = event => {
     const file = event.target.files[0]
@@ -99,7 +95,6 @@ export default memo(() => {
     const reader = new FileReader()
 
     reader.onloadend = () => {
-      base64ImageRef.current = reader.result
       setBase64Image(reader.result)
     }
 
@@ -129,9 +124,6 @@ export default memo(() => {
           reader.onloadend = () => {
             setFileSelected(true)
 
-            const base64Image = reader.result
-
-            base64ImageRef.current = base64Image
             setBase64Image(reader.result)
           }
           reader.readAsDataURL(blob)
@@ -181,7 +173,7 @@ export default memo(() => {
 
           socket.on('userConnected', message => {
             setMessages(prevMessages => [...prevMessages, [message, undefined, undefined, undefined, undefined]])
-            loadingRef.current = false
+            setLoading(false)
           })
 
           socket.on('userLeft', message => {
@@ -197,10 +189,6 @@ export default memo(() => {
 
           const keyDownHandler = async ({ key }) => {
             if (key === 'Enter') {
-              if (loadingRef.current) {
-                return
-              }
-              
               sendButtonRef.current.click()
             }
           }
@@ -279,7 +267,7 @@ export default memo(() => {
         </VStack>
       </Center>
 
-      {loadingRef.current && (
+      {loading && (
         <Center mt="3rem">
           <Spinner />
         </Center>
@@ -342,7 +330,6 @@ export default memo(() => {
                     onClick={() => {
                       setFileSelected(false)
 
-                      base64ImageRef.current = ''
                       setBase64Image('')
                     }}
                   />
@@ -355,7 +342,7 @@ export default memo(() => {
             setMessageInputValue(event.target.value)
           }} />  
           <IconButton ref={sendButtonRef} icon={<SendIcon />} onClick={async () => {
-            if (loadingRef.current) {
+            if (loading) {
               return
             }
 
@@ -373,14 +360,13 @@ export default memo(() => {
 
             const date = new Date()
             const time = `${date.getHours().toLocaleString('en-gb', { minimumIntegerDigits: 2, useGrouping: false })}:${date.getMinutes().toLocaleString('en-gb', { minimumIntegerDigits: 2, useGrouping: false })}`
-            setMessages(prevMessages => [...prevMessages, [messageInputValue, username + ':', time, color, base64ImageRef.current]])
+            setMessages(prevMessages => [...prevMessages, [messageInputValue, username + ':', time, color, base64Image]])
             scrollMessagesDown()
 
-            socket.emit('sendMessage', { uid, message: messageInputValue, username, color, image: base64ImageRef.current })
+            socket.emit('sendMessage', { uid, message: messageInputValue, username, color, image: base64Image })
 
             setMessageInputValue('')
             
-            base64ImageRef.current = ''
             setBase64Image('')
 
             setFileSelected(false)
