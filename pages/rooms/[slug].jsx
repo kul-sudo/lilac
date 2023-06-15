@@ -1,6 +1,6 @@
 import Head from 'next/head'
 import { memo, useEffect, useRef, useState } from 'react'
-import { Image as ChakraImage, Popover, PopoverTrigger, PopoverContent, PopoverArrow, PopoverCloseButton, PopoverBody, PopoverHeader, Box, Button, Center, HStack, IconButton, Input, Spinner, Text, VStack, AlertDialog, AlertDialogOverlay, AlertDialogContent, AlertDialogCloseButton, FormControl, useColorModeValue, useToast, useDisclosure } from '@chakra-ui/react'
+import { Image as ChakraImage, Popover, PopoverTrigger, PopoverContent, PopoverArrow, PopoverCloseButton, PopoverBody, PopoverHeader, Box, Button, Center, HStack, IconButton, Input, Spinner, Text, VStack, AlertDialog, AlertDialogOverlay, AlertDialogContent, AlertDialogCloseButton, FormControl, useColorModeValue, useToast, useDisclosure, Kbd, Badge } from '@chakra-ui/react'
 import { useRouter } from 'next/router'
 import { CopyIcon, Image as ImageIcon, LockIcon, SendIcon, UploadIcon, XIcon } from 'lucide-react'
 import { addRoom } from '@/lib/firebaseOperations'
@@ -305,7 +305,9 @@ export default memo(() => {
               <PopoverBody>
                 <FormControl>
                   <Input display="none" type="file" ref={fileInputRef} onChange={handleFileChange} accept="image/*" id="file-input" />
-
+                  <Badge>
+                    You can use <Kbd>ctrl</Kbd> + <Kbd>v</Kbd> to paste an image
+                  </Badge>
                   <HStack>
                     <Text color="grey">Currently selected file: </Text>
                     {isFileSelected ? (
