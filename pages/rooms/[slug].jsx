@@ -12,7 +12,6 @@ let socket;
 
 const ColumnBlock = block(
   ({ element, index, setAlertDialogImage, onOpen }) => {
-    console.log(element)
     return (
       <Box
         key={index}
@@ -87,7 +86,10 @@ export default memo(() => {
 
   const [isFileSelected, setFileSelected] = useState(false)
 
+  const fileInputRef = useRef(null)
+
   const handleFileChange = event => {
+    console.log(base64Image)
     const file = event.target.files[0]
 
     setFileSelected(true)
@@ -215,6 +217,7 @@ export default memo(() => {
   const cancelRef = useRef()
   const [alertDialogImage, setAlertDialogImage] = useState('')
 
+
   return (
     <>
       <Head>
@@ -299,10 +302,10 @@ export default memo(() => {
             <PopoverContent>
               <PopoverArrow />
               <PopoverCloseButton />
-              <PopoverHeader>What's the image URL?</PopoverHeader>
+              <PopoverHeader>What's the image?</PopoverHeader>
               <PopoverBody>
                 <FormControl>
-                  <Input display="none" type="file" onChange={handleFileChange} accept="image/*" id="file-input" />
+                  <Input display="none" type="file" ref={fileInputRef} onChange={handleFileChange} accept="image/*" id="file-input" />
 
                   <HStack>
                     <Text color="grey">Currently selected file: </Text>
@@ -331,6 +334,8 @@ export default memo(() => {
                       setFileSelected(false)
 
                       setBase64Image('')
+
+                      fileInputRef.current.value = ''
                     }}
                   />
                 </FormControl>
@@ -368,7 +373,6 @@ export default memo(() => {
             setMessageInputValue('')
             
             setBase64Image('')
-
             setFileSelected(false)
           }} />
         </HStack>
