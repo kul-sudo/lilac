@@ -22,6 +22,10 @@ export default () => {
 
   useEffect(() => {
     socketInitializer()
+
+    return () => {
+      socket.disconnect()
+    }
   }, [])
 
   return (

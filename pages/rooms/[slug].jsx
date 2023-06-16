@@ -200,6 +200,10 @@ export default memo(() => {
     }
 
     toDo()
+
+    return () => {
+      socket.disconnect()
+    }
   }, [])
 
 
