@@ -42,6 +42,15 @@ const ColumnBlock = block(
   }
 )
 
+const getBase64ImageSize = base64Image => {
+  const padding = (base64Image.endsWith('==')) ? 2 : (base64Image.endsWith('=')) ? 1 : 0
+  const base64Length = base64Image.length
+  const fileSizeInBytes = (base64Length / 4) * 3 - padding
+  const fileSizeInMegabytes = fileSizeInBytes / (1024 * 1024)
+
+  return fileSizeInMegabytes
+}
+
 export default memo(() => {
   const router = useRouter()
   const uid = router.query.slug
@@ -206,7 +215,6 @@ export default memo(() => {
     }
   }, [])
 
-
   useEffect(() => {
     document.addEventListener('paste', handlePaste)
 
@@ -219,7 +227,6 @@ export default memo(() => {
 
   const cancelRef = useRef()
   const [alertDialogImage, setAlertDialogImage] = useState('')
-
 
   return (
     <>
@@ -300,7 +307,7 @@ export default memo(() => {
             initialFocusRef={firstFieldRef}
           >
             <PopoverTrigger>
-              <IconButton icon={<ImageIcon />} onClick={() => {}} />
+              <IconButton icon={<ImageIcon />} />
             </PopoverTrigger>
             <PopoverContent>
               <PopoverArrow />
@@ -356,6 +363,18 @@ export default memo(() => {
               return
             }
 
+            if (isFileSelected && getBase64ImageSize(base64Image) > 1) {
+              toast({
+                title: 'Error',
+                description: 'The image you have sent is over 1 MB. Try downloading it and uploading it as a file.',
+                status: 'error',
+                duration: 9000,
+                isClosable: true
+              })
+
+              return
+            }
+
             if (messageInputValue === '' && !isFileSelected) {
               toast({
                 title: 'Error',
@@ -371,6 +390,7 @@ export default memo(() => {
             const date = new Date()
             const time = `${date.getHours().toLocaleString('en-gb', { minimumIntegerDigits: 2, useGrouping: false })}:${date.getMinutes().toLocaleString('en-gb', { minimumIntegerDigits: 2, useGrouping: false })}`
             setMessages(prevMessages => [...prevMessages, [messageInputValue, username + ':', time, color, base64Image]])
+            
             scrollMessagesDown()
 
             socket.emit('sendMessage', { uid, message: messageInputValue, username, color, image: base64Image })

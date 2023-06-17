@@ -3,30 +3,10 @@ import { Button, HStack, Input, Text, VStack, useColorModeValue } from '@chakra-
 import { BadgeCheckIcon } from 'lucide-react'
 import { addRoom } from '@/lib/firebaseOperations'
 import { isRoomExistent } from '@/lib/isRoomExistent'
-import { useEffect } from 'react'
 import { useRouter } from 'next/router'
-import io from 'socket.io-client'
-
-let socket;
 
 export default () => {
   const router = useRouter()
-
-  const socketInitializer = async () => {
-    await fetch('/api/socket')
-
-    socket = io(undefined, {
-      path: '/api/socket'
-    })
-  }
-
-  useEffect(() => {
-    socketInitializer()
-
-    return () => {
-      socket.disconnect()
-    }
-  }, [])
 
   return (
     <>
