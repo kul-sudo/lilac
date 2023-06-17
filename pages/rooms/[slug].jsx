@@ -344,9 +344,7 @@ export default memo(() => {
                     icon={<XIcon />}
                     onClick={() => {
                       setFileSelected(false)
-
                       setBase64Image('')
-
                       fileInputRef.current.value = ''
                     }}
                   />
@@ -371,6 +369,10 @@ export default memo(() => {
                 duration: 9000,
                 isClosable: true
               })
+
+              setFileSelected(false)
+              setBase64Image('')
+              fileInputRef.current.value = ''
 
               return
             }
@@ -397,8 +399,9 @@ export default memo(() => {
 
             setMessageInputValue('')
             
-            setBase64Image('')
             setFileSelected(false)
+            setBase64Image('')
+            fileInputRef.current.value = ''
           }} />
         </HStack>
       </Center>
