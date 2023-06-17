@@ -31,10 +31,6 @@ export default (req, res) => {
     socket.on('sendMessage', data => {
       socket.broadcast.to(data.uid).emit('messageReceived', { message: data.message, username: data.username, color: data.color, image: data.image })
     })
-
-    socket.on('disconnect', () => {
-      io.to(data.uid).emit('userLeft', `${data.username} has left the room`)
-    })
   })
 
   res.status(200).send('Setting up the socket.')
