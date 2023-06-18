@@ -3561,7 +3561,7 @@ socket.io-adapter@~2.5.2:
   dependencies:
     ws "~8.11.0"
 
-socket.io-client@^4.6.1:
+socket.io-client@^4.6.2:
   version "4.6.2"
   resolved "https://registry.yarnpkg.com/socket.io-client/-/socket.io-client-4.6.2.tgz#2bfde952e74625d54e622718a7cb1d591ee62fd6"
   integrity sha512-OwWrMbbA8wSqhBAR0yoPK6EdQLERQAYjXb3A0zLpgxfM1ZGLKoxHx8gVmCHA6pcclRX5oA/zvQf7bghAS11jRA==
@@ -3579,7 +3579,7 @@ socket.io-parser@~4.2.4:
     "@socket.io/component-emitter" "~3.1.0"
     debug "~4.3.1"
 
-socket.io@^4.6.1:
+socket.io@^4.6.2:
   version "4.6.2"
   resolved "https://registry.yarnpkg.com/socket.io/-/socket.io-4.6.2.tgz#d597db077d4df9cbbdfaa7a9ed8ccc3d49439786"
   integrity sha512-Vp+lSks5k0dewYTfwgPT9UeGGd+ht7sCpB7p0e83VgO4X/AHYWhXITMrNk/pg8syY2bpx23ptClCQuHhqi2BgQ==
