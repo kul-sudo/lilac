@@ -754,9 +754,9 @@
     "@chakra-ui/utils" "2.0.15"
 
 "@chakra-ui/react@^2.6.1":
-  version "2.7.0"
-  resolved "https://registry.yarnpkg.com/@chakra-ui/react/-/react-2.7.0.tgz#0fdeb5d5ec0faf97e143cba94498b055a093f671"
-  integrity sha512-+FcUFQMsPfhWuM9Iu7uqufwwhmHN2IX6FWsBixYGOalO86dpgETsILMZP9PuWfgj7GpWiy2Dum6HXekh0Tk2Mg==
+  version "2.7.1"
+  resolved "https://registry.yarnpkg.com/@chakra-ui/react/-/react-2.7.1.tgz#1419a4856b7dd74a558ced97f148a97d4953109e"
+  integrity sha512-uIYIAg+gnUoRbgdCfSEVvQnrEz0oWWXATGGSQpxmuJovNVyZKnX/Xug7NkWQfBUJPYRSG+VB69ZmsAFpyLSMtA==
   dependencies:
     "@chakra-ui/accordion" "2.2.0"
     "@chakra-ui/alert" "2.1.0"
@@ -792,6 +792,7 @@
     "@chakra-ui/react-env" "3.0.0"
     "@chakra-ui/select" "2.0.19"
     "@chakra-ui/skeleton" "2.0.24"
+    "@chakra-ui/skip-nav" "2.0.15"
     "@chakra-ui/slider" "2.0.25"
     "@chakra-ui/spinner" "2.0.13"
     "@chakra-ui/stat" "2.0.18"
@@ -832,6 +833,11 @@
     "@chakra-ui/media-query" "3.2.12"
     "@chakra-ui/react-use-previous" "2.0.5"
     "@chakra-ui/shared-utils" "2.0.5"
+
+"@chakra-ui/skip-nav@2.0.15":
+  version "2.0.15"
+  resolved "https://registry.yarnpkg.com/@chakra-ui/skip-nav/-/skip-nav-2.0.15.tgz#cb3b2ffb9c1bc492e66d6b0a189253aa53014257"
+  integrity sha512-5UtmlnV4BmIgEk6lQ0h81JEYhPX04wJEk5ZMoilQ2zEQYL6TkVVHkhRXyc1Zfq76hmHuZPXZV/yJeTecj6jIrA==
 
 "@chakra-ui/slider@2.0.25":
   version "2.0.25"
@@ -3056,9 +3062,9 @@ micromatch@^4.0.2:
     picomatch "^2.3.1"
 
 million@^2.4.4:
-  version "2.4.5"
-  resolved "https://registry.yarnpkg.com/million/-/million-2.4.5.tgz#108ed0c0258ee74331b7e60cfea830c7b10553f9"
-  integrity sha512-3hQHs6+/X8rmM4gSOfiPlgTNjf2OsBMu4R+jARIBtKrI+Nt1iTFeyiNWYfC75BkAM4i25CXsCrlqBUQJ0H7+tw==
+  version "2.4.6"
+  resolved "https://registry.yarnpkg.com/million/-/million-2.4.6.tgz#9b5469b481d48dbc808fd8d9f9e27365c2daf98f"
+  integrity sha512-wKrtnYBwyzpiBb7m+hiLlkv978VR8MbVSw0r9A71nOirot3Wzwa7/2jdhDVCF5HIOc47QfQpl5qZWIsdxHN7vg==
   dependencies:
     "@babel/core" "^7.21.0"
     "@babel/plugin-syntax-jsx" "^7.21.4"

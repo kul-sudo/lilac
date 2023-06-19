@@ -29,7 +29,7 @@ const ColumnBlock = block(
         {element[4] !== '' && (
           <ChakraImage
             rounded="0.2rem"
-            width="40%"
+            width="80%"
             onClick={() => {
               setAlertDialogImage(element[4])
               onOpen()
@@ -245,7 +245,7 @@ export default memo(() => {
       >
         <AlertDialogOverlay />
 
-        <AlertDialogContent>
+        <AlertDialogContent maxWidth="60rem">
           <AlertDialogCloseButton />
             <ChakraImage
               src={alertDialogImage}
