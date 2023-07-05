@@ -35,7 +35,7 @@ const Home = () => {
         </HStack>
         <Input id="room-id-request" variant="filled" placeholder="What's the room ID?" width="15rem" />
         <Button variant="outline" colorScheme={useColorModeValue('messenger', 'gray')} onClick={async () => {
-          const roomUidInputValue = document.getElementById('room-id-request').value
+          const roomUidInputValue = (document.getElementById('room-id-request') as HTMLInputElement).value
           if (await isRoomExistent(roomUidInputValue)) {
             router.push(`/rooms/${roomUidInputValue}`)
           } else {
