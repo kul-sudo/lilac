@@ -1,7 +1,7 @@
 import type { NextApiRequest, NextApiResponse } from 'next'
 import type { Server as HTTPServer } from 'http'
 import type { Socket as NetSocket } from 'net'
-import type { Server as IOServer, Socket } from 'socket.io'
+import type { Server as IOServer } from 'socket.io'
 import { Server } from 'socket.io'
 
 interface SocketServer extends HTTPServer {
@@ -16,7 +16,7 @@ interface NextApiResponseWithSocket extends NextApiResponse {
   socket: SocketWithIO
 }
 
-interface ServerToClientEvents extends Socket {
+interface ServerToClientEvents {
   noArg: () => void;
   basicEmit: (a: number, b: string, c: Buffer) => void;
   withAck: (d: string, callback: (e: number) => void) => void
@@ -44,7 +44,7 @@ interface LeaveRoomData {
 
 type CreateRoomData = LeaveRoomData
 
-interface ServerToClientEvents extends Socket {
+interface ServerToClientEvents {
   connect: () => void;
   messageReceived: (data: DataProps) => void;
   userConnected: (message: string) => void
@@ -52,17 +52,17 @@ interface ServerToClientEvents extends Socket {
 }
 
 
-interface ClientToServerEvents extends Socket {
+interface ClientToServerEvents {
   sendMessage: (data: SendMessageData) => void;
   leaveRoom: (data: LeaveRoomData) => void;
   createRoom: (data: CreateRoomData) => void;
 }
 
-interface InterServerEvents extends Socket {
+interface InterServerEvents {
   ping: () => void;
 }
 
-interface SocketData extends Socket {
+interface SocketData {
   username?: string;
   uid?: string;
   message?: string;
