@@ -1,11 +1,11 @@
 import Head from 'next/head'
 import { Button, HStack, Input, Text, VStack, useColorModeValue } from '@chakra-ui/react'
 import { BadgeCheckIcon } from 'lucide-react'
-import { addRoom } from '@/lib/firebaseOperations'
-import { isRoomExistent } from '@/lib/isRoomExistent'
+import { addRoom } from '../lib/firebaseOperations'
+import { isRoomExistent } from '../lib/isRoomExistent'
 import { useRouter } from 'next/router'
 
-export default () => {
+const Home = () => {
   const router = useRouter()
 
   return (
@@ -48,3 +48,5 @@ export default () => {
     </>
   )
 }
+
+export default Home

@@ -1,6 +1,7 @@
+import type { NextApiRequest, NextApiResponse } from 'next'
 import { jwtVerify } from 'jose'
 
-export default async (req, res) => {
+const verifyToken = async (req: NextApiRequest, res: NextApiResponse) => {
   if (req.method !== 'POST') {
     res.status(405).end()
     return
@@ -16,3 +17,5 @@ export default async (req, res) => {
     res.status(401).json({ error: 'Invalid token' })
   }
 }
+
+export default verifyToken

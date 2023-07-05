@@ -1,20 +1,65 @@
+import type { BaseSyntheticEvent, Dispatch, FC, SetStateAction } from 'react'
+import type { Socket } from 'socket.io'
 import Head from 'next/head'
-import { memo, useEffect, useRef, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { Image as ChakraImage, Popover, PopoverTrigger, PopoverContent, PopoverArrow, PopoverCloseButton, PopoverBody, PopoverHeader, Box, Button, Center, HStack, IconButton, Input, Spinner, Text, VStack, AlertDialog, AlertDialogOverlay, AlertDialogContent, AlertDialogCloseButton, FormControl, useColorModeValue, useToast, useDisclosure, Kbd, Badge } from '@chakra-ui/react'
 import { useRouter } from 'next/router'
 import { CopyIcon, Image as ImageIcon, LockIcon, SendIcon, UploadIcon, XIcon } from 'lucide-react'
-import { addRoom } from '@/lib/firebaseOperations'
-import { isRoomExistent } from '@/lib/isRoomExistent'
+import { addRoom } from '../../lib/firebaseOperations'
+import { isRoomExistent } from '../../lib/isRoomExistent'
 import { For, block } from 'million/react'
 import io from 'socket.io-client'
 
-let socket;
+interface DataProps {
+  message: string;
+  username: string;
+  color: string;
+  image: string
+}
 
-const ColumnBlock = block(
+interface BlockProps {
+  element: string[];
+  index: number;
+  setAlertDialogImage: Dispatch<SetStateAction<string>>;
+  onOpen: () => void
+}
+
+interface SendMessageData {
+  uid: string;
+  message: string;
+  username: string;
+  color: string;
+  image: string
+}
+
+interface LeaveRoomData {
+  username: string;
+  uid: string
+}
+
+type CreateRoomData = LeaveRoomData
+
+interface ServerToClientEvents {
+  connect: () => void;
+  messageReceived: (data: DataProps) => void;
+  userConnected: (message: string) => void
+  userLeft: (message: string) => void
+}
+
+
+interface ClientToServerEvents {
+  sendMessage: (data: SendMessageData) => void;
+  leaveRoom: (data: LeaveRoomData) => void;
+  createRoom: (data: CreateRoomData) => void;
+}
+
+let socket: Socket<ServerToClientEvents, ClientToServerEvents>;
+
+const ColumnBlock: FC<BlockProps> = block(
   ({ element, index, setAlertDialogImage, onOpen }) => {
     return (
       <Box
-        key={index}
+        key={index as string}
         wordBreak="break-word"
         textAlign="left"
         alignSelf="flex-start"
@@ -42,7 +87,7 @@ const ColumnBlock = block(
   }
 )
 
-const getBase64ImageSize = base64Image => {
+const getBase64ImageSize = (base64Image: string) => {
   const padding = (base64Image.endsWith('==')) ? 2 : (base64Image.endsWith('=')) ? 1 : 0
   const base64Length = base64Image.length
   const fileSizeInBytes = (base64Length / 4) * 3 - padding
@@ -51,27 +96,28 @@ const getBase64ImageSize = base64Image => {
   return fileSizeInMegabytes
 }
 
-export default memo(() => {
+const ChatSlug: FC = () => {
   const router = useRouter()
-  const uid = router.query.slug
+  const uid = router.query.slug as string
+
   const [UIDToShow, setUIDToShow] = useState('Unavailable')
 
   const messagesContainerRef = useRef(null)
 
   useEffect(() => {
-    const checkRoomExistence = async roomUid => {
+    const checkRoomExistence = async (roomUid: string) => {
       if (await isRoomExistent(roomUid)) {
         setUIDToShow(roomUid)
       } else {
         const newRoomUid = Math.random().toString(16).slice(2)
-        await addRoom(newRoomUid)
+        addRoom(newRoomUid)
         setUIDToShow(newRoomUid)
         router.push(`/rooms/${newRoomUid}`)
       }
     }
 
     checkRoomExistence(uid)
-  }, [])
+  }, [router, uid])
 
   const [messages, setMessages] = useState([])
 
@@ -97,7 +143,8 @@ export default memo(() => {
 
   const fileInputRef = useRef(null)
 
-  const handleFileChange = event => {
+  const handleFileChange = (event: BaseSyntheticEvent) => {
+    console.log(event)
     const file = event.target.files[0]
 
     setFileSelected(true)
@@ -105,7 +152,7 @@ export default memo(() => {
     const reader = new FileReader()
 
     reader.onloadend = () => {
-      setBase64Image(reader.result)
+      setBase64Image(reader.result as string)
     }
 
     if (file) {
@@ -120,30 +167,9 @@ export default memo(() => {
 
   const sendButtonRef = useRef(null)
 
-  const handlePaste = event => {
-    if (!PopoverIsOpen) {
-      return
-    }
-    const clipboardData = event.clipboardData
-    if (clipboardData.items && clipboardData.items.length > 0) {
-      for (let i = 0; i < clipboardData.items.length; i++) {
-        const item = clipboardData.items[i]
-        if (item.type.indexOf('image') !== -1) {
-          const blob = item.getAsFile()
-          const reader = new FileReader()
-          reader.onloadend = () => {
-            setFileSelected(true)
-
-            setBase64Image(reader.result)
-          }
-          reader.readAsDataURL(blob)
-        }
-      }
-    }
-  }
 
   useEffect(() => {
-    let usernameForServer;
+    let usernameForServer: string;
 
     const toDo = async () => {
       await fetch('/api/get-token')
@@ -172,7 +198,7 @@ export default memo(() => {
             socket.emit('createRoom', { username: usernameForServer, uid })
           })
 
-          socket.on('messageReceived', data => {
+          socket.on('messageReceived', (data: DataProps) => {
             const date = new Date()
             const time = `${date.getHours().toLocaleString('en-gb', { minimumIntegerDigits: 2, useGrouping: false })}:${date.getMinutes().toLocaleString('en-gb', { minimumIntegerDigits: 2, useGrouping: false })}`
 
@@ -181,12 +207,12 @@ export default memo(() => {
             scrollMessagesDown()
           })
 
-          socket.on('userConnected', message => {
+          socket.on('userConnected', (message: string) => {
             setMessages(prevMessages => [...prevMessages, [message, undefined, undefined, undefined, undefined]])
             setLoading(false)
           })
 
-          socket.on('userLeft', message => {
+          socket.on('userLeft', (message: string) => {
             setMessages(prevMessages => [...prevMessages, [message, undefined, undefined, undefined, undefined]])
           })
 
@@ -213,9 +239,32 @@ export default memo(() => {
     return () => {
       socket.disconnect()
     }
-  }, [])
+  }, [uid])
 
   useEffect(() => {
+    const handlePaste = (event: ClipboardEvent) => {
+      console.log(event)
+      if (!PopoverIsOpen) {
+        return
+      }
+      const clipboardData = event.clipboardData
+      if (clipboardData.items && clipboardData.items.length > 0) {
+        for (let i = 0; i < clipboardData.items.length; i++) {
+          const item = clipboardData.items[i]
+          if (item.type.indexOf('image') !== -1) {
+            const blob = item.getAsFile()
+            const reader = new FileReader()
+            reader.onloadend = () => {
+              setFileSelected(true)
+
+              setBase64Image(reader.result as string)
+            }
+            reader.readAsDataURL(blob)
+          }
+        }
+      }
+    }
+
     document.addEventListener('paste', handlePaste)
 
     return () => {
@@ -266,7 +315,7 @@ export default memo(() => {
           <HStack>
             <LockIcon />
             <Text color={useColorModeValue('gray.800', 'whiteAlpha.900')} fontSize="xl">{UIDToShow}</Text>
-            <IconButton variant="unstyled" icon={<CopyIcon />} onClick={() => {
+            <IconButton aria-label="copy" variant="unstyled" icon={<CopyIcon />} onClick={() => {
               navigator.clipboard.writeText(uid)
               toast({
                 title: 'Copied',
@@ -289,7 +338,7 @@ export default memo(() => {
       <Center>
         <VStack mt="2rem" alignItems="start" width="100%" pb="8rem" maxWidth="300px" ref={messagesContainerRef}>
           <For each={messages}>
-            {( element, index ) => {
+            {( element: string[], index: number ) => {
               return (
                 <ColumnBlock element={element} index={index} setAlertDialogImage={setAlertDialogImage} onOpen={onOpen} />
               )
@@ -307,12 +356,12 @@ export default memo(() => {
             initialFocusRef={firstFieldRef}
           >
             <PopoverTrigger>
-              <IconButton icon={<ImageIcon />} />
+              <IconButton aria-label="set-image" icon={<ImageIcon />} />
             </PopoverTrigger>
             <PopoverContent>
               <PopoverArrow />
               <PopoverCloseButton />
-              <PopoverHeader>What's the image?</PopoverHeader>
+              <PopoverHeader>{"What's"} the image?</PopoverHeader>
               <PopoverBody>
                 <FormControl>
                   <Input display="none" type="file" ref={fileInputRef} onChange={handleFileChange} accept="image/*" id="file-input" />
@@ -332,12 +381,14 @@ export default memo(() => {
                   </HStack>
                   <label htmlFor="file-input">
                     <IconButton
+                      aria-label="upload-image"
                       mt="0.5rem"
                       as="span"
                       icon={<UploadIcon />}
                     />
                   </label>
                   <IconButton
+                    aria-label="clear-image"
                     mt="0.5rem"
                     ml="0.5rem"
                     as="span"
@@ -356,7 +407,7 @@ export default memo(() => {
           <Input id="message-input" placeholder="Type the message" variant="filled" ref={messageInputValueRef} value={messageInputValue} onChange={event => {
             setMessageInputValue(event.target.value)
           }} />  
-          <IconButton ref={sendButtonRef} icon={<SendIcon />} onClick={async () => {
+          <IconButton aria-label="send" ref={sendButtonRef} icon={<SendIcon />} onClick={async () => {
             if (loading) {
               return
             }
@@ -407,4 +458,6 @@ export default memo(() => {
       </Center>
     </>
   )
-})
+}
+
+export default ChatSlug

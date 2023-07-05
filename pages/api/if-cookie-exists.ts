@@ -1,4 +1,4 @@
-export default (req, res) => {
+const ifCookieExists = (req, res) => {
   const { token } = req.cookies
   if (token) {
     res.status(200).json({ tokenExists: true })
@@ -6,3 +6,5 @@ export default (req, res) => {
     res.status(200).json({ tokenExists: false })
   }
 }
+
+export default ifCookieExists

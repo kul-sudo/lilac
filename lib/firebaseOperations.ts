@@ -3,7 +3,7 @@ import './firebase'
 
 const db = getDatabase()
 
-export const addRoom = roomUid => {
+export const addRoom = (roomUid: string) => {
   const roomsListRef = ref(db, '/rooms')
 
   const newRoomRef = push(roomsListRef)

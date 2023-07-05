@@ -1,6 +1,7 @@
+import type { NextApiRequest, NextApiResponse } from 'next'
 import { SignJWT } from 'jose'
 
-export default async (req, res) => {
+const authenticate = async (req: NextApiRequest, res: NextApiResponse) => {
   if (req.method !== 'POST') {
     res.status(405).end()
     return
@@ -30,3 +31,5 @@ export default async (req, res) => {
     res.status(401).json({ error: 'Authentication failed' })
   }
 }
+
+export default authenticate

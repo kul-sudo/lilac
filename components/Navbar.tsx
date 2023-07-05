@@ -1,7 +1,7 @@
 import { IconButton, Text, HStack, useColorMode, useColorModeValue } from '@chakra-ui/react'
 import { LogOutIcon, MoonIcon, SunMediumIcon, UserIcon } from 'lucide-react'
 
-export default ({ username }) => {
+const Navbar = ({ username }) => {
   const { toggleColorMode } = useColorMode()
 
   return (
@@ -10,14 +10,16 @@ export default ({ username }) => {
         <UserIcon />
         <Text>{username}</Text>
       </HStack>
-      <IconButton rounded="full" _hover={{ backgroundColor: useColorModeValue('#f2f2f2', '#1d2430') }} variant="ghost" icon={<LogOutIcon />} onClick={() => {
+      <IconButton aria-label="logout" rounded="full" _hover={{ backgroundColor: useColorModeValue('#f2f2f2', '#1d2430') }} variant="ghost" icon={<LogOutIcon />} onClick={() => {
         fetch('/api/remove-token', {
           method: 'DELETE'
         })
 
         window.location.reload()
       }} />
-      <IconButton rounded="full" _hover={{ backgroundColor: useColorModeValue('#f2f2f2', '#1d2430') }} variant="ghost" onClick={toggleColorMode} icon={useColorModeValue(<MoonIcon />, <SunMediumIcon />)} />
+      <IconButton aria-label="toggle-color-mode" rounded="full" _hover={{ backgroundColor: useColorModeValue('#f2f2f2', '#1d2430') }} variant="ghost" onClick={toggleColorMode} icon={useColorModeValue(<MoonIcon />, <SunMediumIcon />)} />
     </HStack>
   )
 }
+
+export default Navbar

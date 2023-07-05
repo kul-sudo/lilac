@@ -1,11 +1,12 @@
+import type { Styles, GlobalStyleProps } from '@chakra-ui/theme-tools'
 import { extendTheme } from '@chakra-ui/react'
 import { mode } from '@chakra-ui/theme-tools'
 import { Inter } from 'next/font/google'
 
 const font = Inter({ preload: false })
 
-const styles = {
-  global: props => ({
+const styles: Styles = {
+  global: (props: GlobalStyleProps) => ({
     body: {
       bg: mode('#dbdbdb', '#030711')(props)
     }

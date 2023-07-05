@@ -1,14 +1,15 @@
+import { AppProps } from 'next/app'
 import { Button, Center, ChakraBaseProvider, Input, VStack, useToast } from '@chakra-ui/react'
-import { useState, useEffect } from 'react'
-import Navbar from '@/components/Navbar'
-import theme from '@/lib/theme'
-import '@/styles/globals.css'
+import { useState, useEffect, FC } from 'react'
+import Navbar from '../components/Navbar'
+import theme from '../lib/theme'
+import '../styles/globals.css'
 
 const BLANK = 0
 const AUTH = 1
 const MAIN_PAGE = 2
 
-export default ({ Component, pageProps }) => {
+const App: FC<AppProps> = ({ Component, pageProps }) => {
   const [requiresAuth, setRequiresAuth] = useState(BLANK)  
   const [usernameToShow, setUsernameToShow] = useState('')
   const toast = useToast()
@@ -33,7 +34,7 @@ export default ({ Component, pageProps }) => {
       })
   }, [])
 
-  const verifyToken = async token => {
+  const verifyToken = async (token: string) => {
     try {
       const response = await fetch('/api/verify-token', {
         method: 'POST',
@@ -67,7 +68,7 @@ export default ({ Component, pageProps }) => {
           <VStack>
             <Input id="auth-username-input" placeholder="Type your username" />
             <Button onClick={async () => {
-              const username = document.getElementById('auth-username-input').value
+              const username = (document.getElementById('auth-username-input') as HTMLInputElement).value
               if (username === '') {
                 toast({
                   title: 'Error',
@@ -125,3 +126,5 @@ export default ({ Component, pageProps }) => {
     </ChakraBaseProvider>
   )
 }
+
+export default App

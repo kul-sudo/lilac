@@ -2,7 +2,7 @@ import Head from 'next/head'
 import Link from 'next/link'
 import { Box, Button, Text } from '@chakra-ui/react'
 
-export default () => {
+const Page404 = () => {
   return (
     <>
       <Head>
@@ -21,3 +21,5 @@ export default () => {
     </>
   )
 }
+
+export default Page404
