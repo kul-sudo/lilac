@@ -1,8 +1,8 @@
 import type { BaseSyntheticEvent, Dispatch, FC, SetStateAction } from 'react'
 import type { Socket } from 'socket.io'
 import Head from 'next/head'
-import { useEffect, useRef, useState } from 'react'
 import { Image as ChakraImage, Popover, PopoverTrigger, PopoverContent, PopoverArrow, PopoverCloseButton, PopoverBody, PopoverHeader, Box, Button, Center, HStack, IconButton, Input, Spinner, Text, VStack, AlertDialog, AlertDialogOverlay, AlertDialogContent, AlertDialogCloseButton, FormControl, Kbd, Badge, useColorModeValue, useToast, useDisclosure } from '@chakra-ui/react'
+import { useEffect, useRef, useState } from 'react'
 import { useRouter } from 'next/router'
 import { CopyIcon, Image as ImageIcon, LockIcon, SendIcon, UploadIcon, XIcon } from 'lucide-react'
 import { addRoom } from '../../lib/firebaseOperations'
@@ -53,6 +53,8 @@ interface ClientToServerEvents {
   createRoom: (data: CreateRoomData) => void;
 }
 
+let socket: Socket<ServerToClientEvents, ClientToServerEvents>;
+
 const ColumnBlock: FC<BlockProps> = block(
   ({ element, index, setAlertDialogImage, onOpen }) => {
     return (
@@ -95,8 +97,6 @@ const getBase64ImageSize = (base64Image: string) => {
 }
 
 const ChatSlug: FC = () => {
-  const [socket, setSocket] = useState<Socket<ServerToClientEvents, ClientToServerEvents>>(undefined)
-
   const router = useRouter()
   const uid = router.query.slug as string
 
@@ -166,6 +166,7 @@ const ChatSlug: FC = () => {
   const firstFieldRef = useRef(null)
   const sendButtonRef = useRef(null)
 
+
   useEffect(() => {
     let usernameForServer: string;
 
@@ -188,9 +189,9 @@ const ChatSlug: FC = () => {
 
           await fetch('/api/socket')
 
-          setSocket(io(undefined, {
+          socket = io(undefined, {
             path: '/api/socket'
-          }) as unknown as Socket<ServerToClientEvents, ClientToServerEvents>)
+          }) as unknown as Socket<ServerToClientEvents, ClientToServerEvents> 
 
           socket.on('connect', () => {
             socket.emit('createRoom', { username: usernameForServer, uid })
@@ -237,7 +238,7 @@ const ChatSlug: FC = () => {
     return () => {
       socket.disconnect()
     }
-  }, [uid, socket])
+  }, [uid])
 
   useEffect(() => {
     const handlePaste = (event: ClipboardEvent) => {
