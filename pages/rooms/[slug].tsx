@@ -1,6 +1,7 @@
 import type { ClientToServerEvents, DataProps, ServerToClientEvents } from '../../types/socket'
-import type { BaseSyntheticEvent, Dispatch, FC, SetStateAction } from 'react'
+import type { BaseSyntheticEvent, FC } from 'react'
 import type { Socket } from 'socket.io'
+import type { BlockProps } from '../../types/million'
 import Head from 'next/head'
 import { Image as ChakraImage, Popover, PopoverTrigger, PopoverContent, PopoverArrow, PopoverCloseButton, PopoverBody, PopoverHeader, Box, Button, Center, HStack, IconButton, Input, Spinner, Text, VStack, AlertDialog, AlertDialogOverlay, AlertDialogContent, AlertDialogCloseButton, FormControl, Kbd, Badge, useColorModeValue, useToast, useDisclosure } from '@chakra-ui/react'
 import { useEffect, useRef, useState } from 'react'
@@ -10,13 +11,6 @@ import { addRoom } from '../../lib/firebaseOperations'
 import { isRoomExistent } from '../../lib/isRoomExistent'
 import { For, block } from 'million/react'
 import io from 'socket.io-client'
-
-type BlockProps = {
-  element: string[];
-  index: number;
-  setAlertDialogImage: Dispatch<SetStateAction<string>>;
-  onOpen: () => void
-}
 
 let socket: Socket<ServerToClientEvents, ClientToServerEvents>;
 
