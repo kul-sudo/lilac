@@ -1,3 +1,4 @@
+import type { ClientToServerEvents, DataProps, ServerToClientEvents } from '../../types/socket'
 import type { BaseSyntheticEvent, Dispatch, FC, SetStateAction } from 'react'
 import type { Socket } from 'socket.io'
 import Head from 'next/head'
@@ -10,82 +11,46 @@ import { isRoomExistent } from '../../lib/isRoomExistent'
 import { For, block } from 'million/react'
 import io from 'socket.io-client'
 
-interface DataProps {
-  message: string;
-  username: string;
-  color: string;
-  image: string
-}
-
-interface BlockProps {
+type BlockProps = {
   element: string[];
   index: number;
   setAlertDialogImage: Dispatch<SetStateAction<string>>;
   onOpen: () => void
 }
 
-interface SendMessageData {
-  uid: string;
-  message: string;
-  username: string;
-  color: string;
-  image: string
-}
-
-interface LeaveRoomData {
-  username: string;
-  uid: string
-}
-
-type CreateRoomData = LeaveRoomData
-
-interface ServerToClientEvents {
-  connect: () => void;
-  messageReceived: (data: DataProps) => void;
-  userConnected: (message: string) => void
-  userLeft: (message: string) => void
-}
-
-
-interface ClientToServerEvents {
-  sendMessage: (data: SendMessageData) => void;
-  leaveRoom: (data: LeaveRoomData) => void;
-  createRoom: (data: CreateRoomData) => void;
-}
-
 let socket: Socket<ServerToClientEvents, ClientToServerEvents>;
 
-const ColumnBlock: FC<BlockProps> = block(
-  ({ element, index, setAlertDialogImage, onOpen }) => {
-    return (
-      <Box
-        key={index as string}
-        wordBreak="break-word"
-        textAlign="left"
-        alignSelf="flex-start"
-      >
-        <HStack alignItems="top">
-          <Text color="gray">{element[2]}</Text>
-          <Text color={element[3]}>{element[1]}</Text>
-          <Box flex="1" wordBreak="break-word">
-            <Text>{element[0]}</Text>
-          </Box>
-        </HStack>
-        {element[4] !== '' && (
-          <ChakraImage
-            rounded="0.2rem"
-            width="80%"
-            onClick={() => {
-              setAlertDialogImage(element[4])
-              onOpen()
-            }}
-            src={element[4]}
-          />
-        )}
-      </Box>
-    )
-  }
-)
+const ColumnBlockComponent: FC<BlockProps> = ({ element, index, setAlertDialogImage, onOpen }) => {
+  return (
+    <Box
+      key={index}
+      wordBreak="break-word"
+      textAlign="left"
+      alignSelf="flex-start"
+    >
+      <HStack alignItems="top">
+        <Text color="gray">{element[2]}</Text>
+        <Text color={element[3]}>{element[1]}</Text>
+        <Box flex="1" wordBreak="break-word">
+          <Text>{element[0]}</Text>
+        </Box>
+      </HStack>
+      {element[4] !== '' && (
+        <ChakraImage
+          rounded="0.2rem"
+          width="80%"
+          onClick={() => {
+            setAlertDialogImage(element[4])
+            onOpen()
+          }}
+          src={element[4]}
+        />
+      )}
+    </Box>
+  )
+} 
+
+const ColumnBlock = block(ColumnBlockComponent)
 
 const getBase64ImageSize = (base64Image: string) => {
   const padding = (base64Image.endsWith('==')) ? 2 : (base64Image.endsWith('=')) ? 1 : 0
@@ -144,7 +109,6 @@ const ChatSlug: FC = () => {
   const fileInputRef = useRef(null)
 
   const handleFileChange = (event: BaseSyntheticEvent) => {
-    console.log(event)
     const file = event.target.files[0]
 
     setFileSelected(true)
@@ -242,7 +206,6 @@ const ChatSlug: FC = () => {
 
   useEffect(() => {
     const handlePaste = (event: ClipboardEvent) => {
-      console.log(event)
       if (!PopoverIsOpen) {
         return
       }
@@ -337,7 +300,7 @@ const ChatSlug: FC = () => {
       <Center>
         <VStack mt="2rem" alignItems="start" width="100%" pb="8rem" maxWidth="300px" ref={messagesContainerRef}>
           <For each={messages}>
-            {( element: string[], index: number ) => {
+            {( element, index ) => {
               return (
                 <ColumnBlock element={element} index={index} setAlertDialogImage={setAlertDialogImage} onOpen={onOpen} />
               )

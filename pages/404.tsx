@@ -1,8 +1,9 @@
+import type { FC } from 'react'
 import Head from 'next/head'
 import Link from 'next/link'
 import { Box, Button, Text } from '@chakra-ui/react'
 
-const Page404 = () => {
+const Page404: FC = () => {
   return (
     <>
       <Head>

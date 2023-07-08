@@ -1,7 +1,12 @@
+import type { FC } from 'react'
 import { IconButton, Text, HStack, useColorMode, useColorModeValue } from '@chakra-ui/react'
 import { LogOutIcon, MoonIcon, SunMediumIcon, UserIcon } from 'lucide-react'
 
-const Navbar = ({ username }) => {
+type NavbarProps = {
+  username: string
+}
+
+const Navbar: FC<NavbarProps> = ({ username }) => {
   const { toggleColorMode } = useColorMode()
 
   return (
