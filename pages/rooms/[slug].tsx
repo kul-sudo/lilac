@@ -10,11 +10,21 @@ import { CopyIcon, Image as ImageIcon, LockIcon, SendIcon, UploadIcon, XIcon } f
 import { addRoom } from '../../lib/firebaseOperations'
 import { isRoomExistent } from '../../lib/isRoomExistent'
 import { For, block } from 'million/react'
+import { useAtom } from 'jotai'
+import { alertDialogImageAtom } from '../../lib/atoms'
 import io from 'socket.io-client'
 
 let socket: Socket<ServerToClientEvents, ClientToServerEvents>;
 
-const ColumnBlockComponent: FC<BlockProps> = ({ element, index, setAlertDialogImage, onOpen }) => {
+const ColumnBlockComponent: FC<BlockProps> = ({ element, index, onOpen }) => {
+  const [alertDialogImage, setAlertDialogImage] = useAtom(alertDialogImageAtom)
+  
+  const element0 = typeof element === 'undefined' ? undefined : element[0]
+  const element1 = typeof element === 'undefined' ? undefined : element[1]
+  const element2 = typeof element === 'undefined' ? undefined : element[2]
+  const element3 = typeof element === 'undefined' ? undefined : element[3]
+  const element4 = typeof element === 'undefined' ? undefined : element[4]
+
   return (
     <Box
       key={index}
@@ -23,21 +33,21 @@ const ColumnBlockComponent: FC<BlockProps> = ({ element, index, setAlertDialogIm
       alignSelf="flex-start"
     >
       <HStack alignItems="top">
-        <Text color="gray">{element[2]}</Text>
-        <Text color={element[3]}>{element[1]}</Text>
+        <Text color="gray">{element2}</Text>
+        <Text color={element3}>{element1}</Text>
         <Box flex="1" wordBreak="break-word">
-          <Text>{element[0]}</Text>
+          <Text>{element0}</Text>
         </Box>
       </HStack>
-      {element[4] !== '' && (
+      {element2 !== '' && (
         <ChakraImage
           rounded="0.2rem"
           width="80%"
           onClick={() => {
-            setAlertDialogImage(element[4])
+            setAlertDialogImage(element4)
             onOpen()
           }}
-          src={element[4]}
+          src={element4}
         />
       )}
     </Box>
@@ -93,11 +103,8 @@ const ChatSlug: FC = () => {
   const toast = useToast()
 
   const [color, setColor] = useState('')
-
   const [loading, setLoading] = useState(true)
-
   const [base64Image, setBase64Image] = useState('')
-
   const [isFileSelected, setFileSelected] = useState(false)
 
   const fileInputRef = useRef(null)
@@ -231,7 +238,8 @@ const ChatSlug: FC = () => {
   const [usernameForLeave, setUsernameForLeave] = useState('')
 
   const cancelRef = useRef()
-  const [alertDialogImage, setAlertDialogImage] = useState('')
+
+  const [alertDialogImage, setAlertDialogImage] = useAtom(alertDialogImageAtom)
 
   return (
     <>
@@ -296,7 +304,7 @@ const ChatSlug: FC = () => {
           <For each={messages}>
             {( element, index ) => {
               return (
-                <ColumnBlock element={element} index={index} setAlertDialogImage={setAlertDialogImage} onOpen={onOpen} />
+                <ColumnBlock element={element} index={index} onOpen={onOpen} />
               )
             }}
           </For>
