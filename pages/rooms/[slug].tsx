@@ -312,7 +312,7 @@ const ChatSlug: FC = () => {
       </Center>
       
       <Center>
-        <HStack position="fixed" bottom="5" backdropFilter="auto" backdropBlur="12px">
+        <HStack position="fixed" bottom="5" backdropFilter="auto" backdropBlur="12px" mx="0.5rem">
           <Popover
             isOpen={PopoverIsOpen}
             onOpen={PopoverOnOpen}
