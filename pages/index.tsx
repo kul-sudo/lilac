@@ -23,7 +23,7 @@ const Home: FC = () => {
         <Text color="#7f8ea3" fontSize="xl" pr="1rem">Just create a room, share it with your friend and share your thoughts.</Text>
       </VStack>
 
-      <Button ml="2rem" mt="1rem" colorScheme="telegram" onClick={async () => {
+      <Button ml="2rem" mt="1rem" colorScheme="telegram" onClick={() => {
         const uid = Math.random().toString(16).slice(2)
         router.push(`/rooms/${uid}`)
         addRoom(uid) 
