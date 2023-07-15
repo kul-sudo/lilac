@@ -39,7 +39,7 @@ const ColumnBlockComponent: FC<BlockProps> = ({ element, index, onOpen }) => {
           <Text>{element0}</Text>
         </Box>
       </HStack>
-      {element2 !== '' && (
+      {element4 !== '' && (
         <ChakraImage
           rounded="0.2rem"
           width="80%"
