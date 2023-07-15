@@ -19,11 +19,9 @@ const authenticate = async (req: NextApiRequest, res: NextApiResponse) => {
       .setExpirationTime('1h')
       .setProtectedHeader({ alg: 'HS256' })
       .setIssuedAt()
-      .sign(
-        new TextEncoder().encode(process.env.JWT_SECRET_KEY)
-      )
+      .sign(new TextEncoder().encode(process.env.JWT_SECRET_KEY))
 
-    res.setHeader('Set-Cookie', `token=${token}; Path=/; HttpOnly; Secure; SameSite=Strict;`);
+    res.setHeader('Set-Cookie', `token=${token}; Path=/; HttpOnly; Secure; SameSite=Strict;`)
 
     res.status(200).json({ token })
   } catch (error) {

@@ -3,7 +3,7 @@ import { extendTheme } from '@chakra-ui/react'
 import { mode } from '@chakra-ui/theme-tools'
 import { Inter } from 'next/font/google'
 
-const font = Inter({ preload: false })
+const font = Inter({ subsets: ['latin'] })
 
 const styles: Styles = {
   global: (props: GlobalStyleProps) => ({

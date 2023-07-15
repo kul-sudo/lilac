@@ -64,57 +64,63 @@ const App: FC<AppProps> = ({ Component, pageProps }) => {
   return (
     <ChakraBaseProvider theme={theme}>
       {(requiresAuth === AUTH) && (
-        <Center mt="2rem">
-          <VStack>
-            <Input id="auth-username-input" placeholder="Type your username" />
-            <Button onClick={async () => {
-              const username = (document.getElementById('auth-username-input') as HTMLInputElement).value
-              if (username === '') {
-                toast({
-                  title: 'Error',
-                  description: 'The nickname is empty.',
-                  status: 'error',
-                  duration: 9000,
-                  isClosable: true
-                })
+        <>
+          <Navbar onlyTheme />
 
-                return
-              }
+          <Center mt="2rem">
 
-              if (username.length >= 9) {
-                toast({
-                  title: 'Error',
-                  description: 'Your nickname cannot consist of more than 9 letters.',
-                  status: 'error',
-                  duration: 9000,
-                  isClosable: true
-                })
+            <VStack>
+              <Input id="auth-username-input" placeholder="Type your username" />
+              <Button onClick={async () => {
+                const username = (document.getElementById('auth-username-input') as HTMLInputElement).value
 
-                return
-              }
+                if (username === '') {
+                  toast({
+                    title: 'Error',
+                    description: 'The nickname is empty.',
+                    status: 'error',
+                    duration: 9000,
+                    isClosable: true
+                  })
 
-              try {
-                const response = await fetch('/api/authenticate', {
-                  method: 'POST',
-                  headers: {
-                    'Content-Type': 'application/json'
-                  },
-                  body: JSON.stringify({ username })
-                })
-
-                if (response.ok) {
-                  setRequiresAuth(MAIN_PAGE)
-                } else {
-                  throw new Error('Authentication failed')
+                  return
                 }
-              } catch (error) {
-                console.error('Authentication error:', error)
-              }
 
-              setUsernameToShow(username)
-            }}>Authenticate</Button>
-          </VStack>
-        </Center>
+                if (username.length >= 9) {
+                  toast({
+                    title: 'Error',
+                    description: 'Your nickname cannot consist of more than 9 letters.',
+                    status: 'error',
+                    duration: 9000,
+                    isClosable: true
+                  })
+
+                  return
+                }
+
+                try {
+                  const response = await fetch('/api/authenticate', {
+                    method: 'POST',
+                    headers: {
+                      'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ username })
+                  })
+
+                  if (response.ok) {
+                    setRequiresAuth(MAIN_PAGE)
+                  } else {
+                    throw new Error('Authentication failed')
+                  }
+                } catch (error) {
+                  console.error('Authentication error:', error)
+                }
+
+                setUsernameToShow(username)
+              }}>Authenticate</Button>
+            </VStack>
+          </Center>
+        </>
       )}
 
       {(requiresAuth === MAIN_PAGE) && (

@@ -10,25 +10,25 @@
   },
   "dependencies": {
     "@chakra-ui/react": "^2.6.1",
-    "@emotion/react": "^11.11.0",
+    "@emotion/react": "^11.11.1",
     "@emotion/styled": "^11.11.0",
     "depcheck": "^1.4.3",
     "firebase": "^10.0.0",
-    "framer-motion": "^10.12.16",
+    "framer-motion": "^10.12.21",
     "jose": "^4.14.4",
     "jotai": "^2.2.2",
-    "lucide-react": "^0.259.0",
-    "million": "^2.4.9",
-    "next": "13.4.9",
+    "lucide-react": "^0.260.0",
+    "million": "^2.5.1-beta.2",
+    "next": "13.4.10",
     "react": "18.2.0",
     "react-dom": "18.2.0",
     "socket.io": "^4.6.2",
     "socket.io-client": "^4.6.2"
   },
   "devDependencies": {
-    "@types/react": "18.2.14",
+    "@types/react": "18.2.15",
     "cz-conventional-changelog": "^3.3.0",
-    "eslint-config-next": "13.4.9"
+    "eslint-config-next": "13.4.10"
   },
   "config": {
     "commitizen": {

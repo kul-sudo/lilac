@@ -131,7 +131,6 @@ const ChatSlug: FC = () => {
   const firstFieldRef = useRef(null)
   const sendButtonRef = useRef(null)
 
-
   useEffect(() => {
     let usernameForServer: string;
 
@@ -147,55 +146,55 @@ const ChatSlug: FC = () => {
           },
           body: JSON.stringify({ token })
         })
-        .then(response => response.json())
-        .then(async data => {
-          usernameForServer = data.payload.username
-          setUsernameForLeave(usernameForServer)
+          .then(response => response.json())
+          .then(async data => {
+            usernameForServer = data.payload.username
+            setUsernameForLeave(usernameForServer)
 
-          await fetch('/api/socket')
+            await fetch('/api/socket')
 
-          socket = io(undefined, {
-            path: '/api/socket'
-          }) as unknown as Socket<ServerToClientEvents, ClientToServerEvents> 
+            socket = io(undefined, {
+              path: '/api/socket'
+            }) as unknown as Socket<ServerToClientEvents, ClientToServerEvents> 
 
-          socket.on('connect', () => {
-            socket.emit('createRoom', { username: usernameForServer, uid })
-          })
+            socket.on('connect', () => {
+              socket.emit('createRoom', { username: usernameForServer, uid })
+            })
 
-          socket.on('messageReceived', (data: DataProps) => {
-            const date = new Date()
-            const time = `${date.getHours().toLocaleString('en-gb', { minimumIntegerDigits: 2, useGrouping: false })}:${date.getMinutes().toLocaleString('en-gb', { minimumIntegerDigits: 2, useGrouping: false })}`
+            socket.on('messageReceived', (data: DataProps) => {
+              const date = new Date()
+              const time = `${date.getHours().toLocaleString('en-gb', { minimumIntegerDigits: 2, useGrouping: false })}:${date.getMinutes().toLocaleString('en-gb', { minimumIntegerDigits: 2, useGrouping: false })}`
 
-            setMessages(prevMessages => [...prevMessages, [data.message, data.username + ':', time, data.color, data.image]])
+              setMessages(prevMessages => [...prevMessages, [data.message, data.username + ':', time, data.color, data.image]])
 
-            scrollMessagesDown()
-          })
+              scrollMessagesDown()
+            })
 
-          socket.on('userConnected', (message: string) => {
-            setMessages(prevMessages => [...prevMessages, [message, undefined, undefined, undefined, undefined]])
-            setLoading(false)
-          })
+            socket.on('userConnected', (message: string) => {
+              setMessages(prevMessages => [...prevMessages, [message, undefined, undefined, undefined, undefined]])
+              setLoading(false)
+            })
 
-          socket.on('userLeft', (message: string) => {
-            setMessages(prevMessages => [...prevMessages, [message, undefined, undefined, undefined, undefined]])
-          })
+            socket.on('userLeft', (message: string) => {
+              setMessages(prevMessages => [...prevMessages, [message, undefined, undefined, undefined, undefined]])
+            })
 
-          const messageInput = document.getElementById('message-input')
-          const username = data.payload.username
+            const messageInput = document.getElementById('message-input')
+            const username = data.payload.username
 
-          const color = data.payload.color
-          setColor(color)
-          setUsername(username)
+            const color = data.payload.color
+            setColor(color)
+            setUsername(username)
 
-          const keyDownHandler = async ({ key }) => {
-            if (key === 'Enter') {
-              sendButtonRef.current.click()
+            const keyDownHandler = async ({ key }) => {
+              if (key === 'Enter') {
+                sendButtonRef.current.click()
+              }
             }
-          }
 
-          messageInput.addEventListener('keyup', keyDownHandler)
+            messageInput.addEventListener('keyup', keyDownHandler)
+          })
         })
-      })
     }
 
     toDo()
@@ -370,7 +369,8 @@ const ChatSlug: FC = () => {
 
           <Input id="message-input" placeholder="Type the message" variant="filled" ref={messageInputValueRef} value={messageInputValue} onChange={event => {
             setMessageInputValue(event.target.value)
-          }} />  
+          }} />
+
           <IconButton aria-label="send" ref={sendButtonRef} icon={<SendIcon />} onClick={async () => {
             if (loading) {
               return

@@ -1,7 +1,7 @@
 import { retrieveRooms } from './firebaseOperations'
 
-export const isRoomExistent = async (roomUid: string) => {
-  const rooms: Record<string, Record<string, string>> | null = await retrieveRooms()
+export const isRoomExistent = async (roomUid: string): Promise<boolean> => {
+  const rooms = await retrieveRooms()
   
   if (rooms === null) {
     return false 

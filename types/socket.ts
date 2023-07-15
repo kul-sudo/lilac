@@ -4,38 +4,38 @@ import type { Socket as NetSocket } from 'net'
 import type { Server as IOServer } from 'socket.io'
 
 export type DataProps = {
-  message: string;
-  username: string;
-  color: string;
+  message: string
+  username: string
+  color: string
   image: string
 }
 
 export type SendMessageData = {
-  uid: string;
-  message: string;
-  username: string;
-  color: string;
+  uid: string
+  message: string
+  username: string
+  color: string
   image: string
 }
 
 export type LeaveRoomData = {
-  username: string;
+  username: string
   uid: string
 }
 
 export type CreateRoomData = LeaveRoomData
 
 export type ServerToClientEvents = {
-  connect: () => void;
-  messageReceived: (data: DataProps) => void;
+  connect: () => void
+  messageReceived: (data: DataProps) => void
   userConnected: (message: string) => void
   userLeft: (message: string) => void
 }
 
 export type ClientToServerEvents = {
-  sendMessage: (data: SendMessageData) => void;
-  leaveRoom: (data: LeaveRoomData) => void;
-  createRoom: (data: CreateRoomData) => void;
+  sendMessage: (data: SendMessageData) => void
+  leaveRoom: (data: LeaveRoomData) => void
+  createRoom: (data: CreateRoomData) => void
 }
 
 interface SocketServer extends HTTPServer {
@@ -51,13 +51,13 @@ export interface NextApiResponseWithSocket extends NextApiResponse {
 }
 
 export type InterServerEvents = {
-  ping: () => void;
+  ping: () => void
 }
 
 export type SocketData = {
-  username?: string;
-  uid?: string;
-  message?: string;
-  color?: string;
+  username?: string
+  uid?: string
+  message?: string
+  color?: string
   image?: string
 }

@@ -13,7 +13,8 @@ export const addRoom = (roomUid: string) => {
   })
 }
 
-export const retrieveRooms = async () => {
+export const retrieveRooms = async (): Promise<Record<string, Record<string, string>> | null> => {
   const snapshot = await get(ref(db, 'rooms'))
+  
   return snapshot.val()
 }
