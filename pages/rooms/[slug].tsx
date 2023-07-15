@@ -3,7 +3,39 @@ import type { BaseSyntheticEvent, FC } from 'react'
 import type { Socket } from 'socket.io'
 import type { BlockProps } from '../../types/million'
 import Head from 'next/head'
-import { Image as ChakraImage, Popover, PopoverTrigger, PopoverContent, PopoverArrow, PopoverCloseButton, PopoverBody, PopoverHeader, Box, Button, Center, HStack, IconButton, Input, Spinner, Text, VStack, AlertDialog, AlertDialogOverlay, AlertDialogContent, AlertDialogCloseButton, FormControl, Kbd, Badge, useColorModeValue, useToast, useDisclosure } from '@chakra-ui/react'
+import {
+  Image as ChakraImage,
+  Popover,
+  PopoverTrigger,
+  PopoverContent,
+  PopoverArrow,
+  PopoverCloseButton,
+  PopoverBody,
+  PopoverHeader,
+  Box,
+  Button,
+  Center,
+  HStack,
+  IconButton,
+  Input,
+  Spinner,
+  Text,
+  VStack,
+  AlertDialog,
+  AlertDialogOverlay,
+  AlertDialogContent,
+  AlertDialogCloseButton,
+  Alert,
+  AlertIcon,
+  AlertTitle,
+  AlertDescription,
+  FormControl,
+  Kbd,
+  Badge,
+  useColorModeValue,
+  useToast,
+  useDisclosure
+} from '@chakra-ui/react'
 import { useEffect, useRef, useState } from 'react'
 import { useRouter } from 'next/router'
 import { CopyIcon, Image as ImageIcon, LockIcon, SendIcon, UploadIcon, XIcon } from 'lucide-react'
@@ -12,6 +44,7 @@ import { isRoomExistent } from '../../lib/isRoomExistent'
 import { For, block } from 'million/react'
 import { useAtom } from 'jotai'
 import { alertDialogImageAtom } from '../../lib/atoms'
+import { useNetwork } from '@mantine/hooks'
 import io from 'socket.io-client'
 
 let socket: Socket<ServerToClientEvents, ClientToServerEvents>;
@@ -68,6 +101,8 @@ const getBase64ImageSize = (base64Image: string) => {
 const ChatSlug: FC = () => {
   const router = useRouter()
   const uid = router.query.slug as string
+
+  const networkStatus = useNetwork()
 
   const [UIDToShow, setUIDToShow] = useState('Unavailable')
 
@@ -300,6 +335,12 @@ const ChatSlug: FC = () => {
 
       <Center>
         <VStack mt="2rem" alignItems="start" width="100%" pb="8rem" maxWidth="300px" ref={messagesContainerRef}>
+          {!networkStatus.online && (
+            <Alert status="loading" rounded="xl">
+              <AlertIcon />
+              <AlertDescription>We seem to be not quite online</AlertDescription>
+            </Alert>
+          )}
           <For each={messages}>
             {( element, index ) => {
               return (
@@ -371,7 +412,7 @@ const ChatSlug: FC = () => {
             setMessageInputValue(event.target.value)
           }} />
 
-          <IconButton aria-label="send" ref={sendButtonRef} icon={<SendIcon />} onClick={async () => {
+          <IconButton isDisabled={!networkStatus.online} aria-label="send" ref={sendButtonRef} icon={<SendIcon />} onClick={async () => {
             if (loading) {
               return
             }
