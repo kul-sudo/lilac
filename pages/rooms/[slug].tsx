@@ -27,7 +27,6 @@ import {
   AlertDialogCloseButton,
   Alert,
   AlertIcon,
-  AlertTitle,
   AlertDescription,
   FormControl,
   Kbd,
@@ -116,7 +115,7 @@ const ChatSlug: FC = () => {
         const newRoomUid = Math.random().toString(16).slice(2)
         addRoom(newRoomUid)
         setUIDToShow(newRoomUid)
-        router.push(`/rooms/${newRoomUid}`)
+        router.push(`/rooms/${newRoomUid}`).then(router.reload)
       }
     }
 
