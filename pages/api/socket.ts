@@ -32,18 +32,12 @@ const socket = (req: NextApiRequest, res: NextApiResponseWithSocket) => {
       socket.leave(data.uid)
 
       io.to(data.uid).emit('userLeft', `${data.username} has left the room`)
-
+    
       socketsData.delete(socket.id)
     })
 
     socket.on('sendMessage', data => {
       socket.broadcast.to(data.uid).emit('messageReceived', { message: data.message, username: data.username, color: data.color, image: data.image })
-    })
-
-    socket.on('disconnect', () => {
-      const { username, uid } = socketsData.get(socket.id)
-      io.to(uid).emit('userLeft', `${username} has left the room`)
-      socketsData.delete(socket.id)
     })
   })
 

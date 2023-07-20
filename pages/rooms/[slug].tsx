@@ -120,7 +120,7 @@ const ChatSlug: FC = () => {
     }
 
     checkRoomExistence(uid)
-  }, [router, uid])
+  }, [])
 
   const [messages, setMessages] = useState([])
 
@@ -188,7 +188,8 @@ const ChatSlug: FC = () => {
             await fetch('/api/socket')
 
             socket = io(undefined, {
-              path: '/api/socket'
+              path: '/api/socket',
+              closeOnBeforeunload: true
             }) as unknown as Socket<ServerToClientEvents, ClientToServerEvents> 
 
             socket.on('connect', () => {
@@ -236,7 +237,7 @@ const ChatSlug: FC = () => {
     return () => {
       socket.disconnect()
     }
-  }, [uid])
+  }, [])
 
   useEffect(() => {
     const handlePaste = (event: ClipboardEvent) => {
