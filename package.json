@@ -30,9 +30,11 @@
     "socket.io-client": "^4.6.2"
   },
   "devDependencies": {
+    "@tauri-apps/cli": "^2.1.0",
     "@types/react": "18.2.15",
     "cz-conventional-changelog": "^3.3.0",
-    "eslint-config-next": "13.4.10"
+    "eslint-config-next": "13.4.10",
+    "typescript": "5.7.2"
   },
   "config": {
     "commitizen": {
